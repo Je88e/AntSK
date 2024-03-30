@@ -8,7 +8,7 @@ namespace AntSK.plugins.Functions
     {
         [Description("AntSK:获取订单信息")]
         [return: Description("订单信息")]
-        public string GetOrder([Description("订单号")]  string id)
+        public string GetOrder([Description("订单号")]  int id)
         {
             return $"""
                     订单ID: {id}
