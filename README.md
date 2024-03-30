@@ -66,7 +66,7 @@ https://antsk.ai-dotnet.com/
 
 ## 1️⃣使用docker-compose 
 
-提供了pg版本 **appsettings.json** 和 简化版本（Sqlite+disk） **docker-compose.simple.yml**
+提供了pg版本 **appsettings.json** 和 简化版本（**Sqlite+disk**） **docker-compose.simple.yml**
 
 从项目根目录下载**docker-compose.yml**,然后把配置文件**appsettings.json**和它放在统一目录，
 
@@ -85,7 +85,7 @@ version: '3.8'
 services:
   antsk:
     container_name: antsk
-    image: registry.cn-hangzhou.aliyuncs.com/AIDotNet/antsk:v0.1.5
+    image: registry.cn-hangzhou.aliyuncs.com/AIDotNet/antsk:v0.2.3
     ports:
       - 5000:5000
     networks:
@@ -208,7 +208,12 @@ DB我使用的是CodeFirst模式，只要配置好数据库链接，表结构是
 如有任何问题或建议，请通过以下方式关注我的公众号，发消息与我联系，我们也有交流群，可以发送进群等消息，然后我会拉你进交流群
 ![公众号](https://github.com/AIDotNet/AntSK/blob/main/images/gzh.jpg)
 
----
-
-我们对您在**AntSK**的兴趣表示感谢，并期待与您携手共创智能化的未来！
+## 🌟 Star History
+<a href="https://github.com/AIDotNet/AntSK/stargazers" target="_blank" style="display: block" align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=AIDotNet/AntSK&type=Date&theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=AIDotNet/AntSK&type=Date" />
+    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=AIDotNet/AntSK&type=Date" />
+  </picture>
+</a>
 
