@@ -54,6 +54,8 @@ https://antsk.ai-dotnet.com/
 ### 其他功能示例
 [视频示例](https://www.bilibili.com/video/BV1zH4y1h7Y9/)
 
+[在线文档：http://antsk.cn](http://antsk.cn)
+
 ## ❓如何开始？
 
 在这里我使用的是Postgres 作为数据存储和向量存储，因为Semantic Kernel和Kernel Memory都支持他，当然你也可以换成其他的。
@@ -173,7 +175,7 @@ DB我使用的是CodeFirst模式，只要配置好数据库链接，表结构是
 
 ## ✔️使用llamafactory
 ```
-1、首先需要确保你的环境已经安装了python和pip，如果使用镜像，例如v0.2.3.2版本已经包含了 python全套环境则无需此步骤
+1、首先需要确保你的环境已经安装了python和pip，如果使用镜像，例如p0.2.4版本已经包含了 python全套环境则无需此步骤
 2、进入模型添加页面选择llamafactory
 3、点击初始化，可以检查pip install 环境是否完成
 4、选择一个喜欢的模型
