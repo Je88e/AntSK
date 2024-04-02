@@ -13,13 +13,15 @@
     <PackageReference Include="BlazorComponents.Terminal" Version="0.6.0" />
     <PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
   
+    <PackageReference Include="pythonnet" Version="3.0.3" />
+    
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     
     <PackageReference Include="AutoMapper" Version="8.1.0" />
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
     <PackageReference Include="Markdig" Version="0.36.2" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="SqlSugarCore" Version="5.1.4.148" />
+    <PackageReference Include="SqlSugarCore" Version="5.1.4.149" />
     <PackageReference Include="System.Data.SQLite.Core" Version="1.0.118" />
     <PackageReference Include="RestSharp" Version="110.2.0" />
     
@@ -32,11 +34,11 @@
     <PackageReference Include="Microsoft.KernelMemory.MemoryDb.Redis" Version="0.35.240321.1" />
     <PackageReference Include="Microsoft.KernelMemory.MemoryDb.AzureAISearch" Version="0.35.240321.1" />
 
-    <PackageReference Include="LLamaSharp" Version="0.10.0" />
-    <PackageReference Include="LLamaSharp.Backend.Cpu" Version="0.10.0" />
-    <PackageReference Include="LLamaSharp.Backend.Cuda12" Version="0.10.0" />
-    <PackageReference Include="LLamaSharp.kernel-memory" Version="0.10.0" />
-    <PackageReference Include="LLamaSharp.semantic-kernel" Version="0.10.0" />
+    <PackageReference Include="LLamaSharp" Version="0.11.1" />
+    <PackageReference Include="LLamaSharp.Backend.Cpu" Version="0.11.1" />
+    <PackageReference Include="LLamaSharp.Backend.Cuda12" Version="0.11.1" />
+    <PackageReference Include="LLamaSharp.kernel-memory" Version="0.11.1" />
+    <PackageReference Include="LLamaSharp.semantic-kernel" Version="0.11.1" />
     
     
   </ItemGroup>
