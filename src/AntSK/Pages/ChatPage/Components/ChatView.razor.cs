@@ -51,7 +51,7 @@ namespace AntSK.Pages.ChatPage.Components
         protected override async Task OnInitializedAsync()
         {
             await base.OnInitializedAsync();
-            await LoadData();
+            LoadData();
             var msgs = await _localStorage.GetItemAsync<List<MessageInfo>>("msgs");
             if (msgs != null && msgs.Count > 0)
             {
@@ -61,12 +61,12 @@ namespace AntSK.Pages.ChatPage.Components
 
         protected override async Task OnParametersSetAsync()
         {
-           await LoadData();
+            LoadData();
         }
 
-        private async Task LoadData()
+        private void LoadData()
         {
-            app =await _apps_Repositories.GetFirstAsync(p => p.Id == AppId);
+            app = _apps_Repositories.GetFirst(p => p.Id == AppId);
         }
 
         protected async Task OnClearAsync()
@@ -181,11 +181,11 @@ namespace AntSK.Pages.ChatPage.Components
             var base64= await _chatService.SendImgByAppAsync(app, questions);
             if (string.IsNullOrEmpty(base64))
             {
-                info.HtmlAnswers = "生成失败";
+                info.Context = "生成失败";
             }
             else 
             {
-                info.HtmlAnswers = $"<img src=\"data:image/jpeg;base64,{base64}\" alt=\"Base64 Image\" />";
+                info.Context = $"<img src=\"data:image/jpeg;base64,{base64}\" alt=\"Base64 Image\" />";
             }
             MessageList.Add(info);
         }
@@ -208,14 +208,13 @@ namespace AntSK.Pages.ChatPage.Components
                     info = new MessageInfo();
                     info.ID = Guid.NewGuid().ToString();
                     info.Context = content.ConvertToString();
-                    info.HtmlAnswers = content.ConvertToString();
                     info.CreateTime = DateTime.Now;
 
                     MessageList.Add(info);
                 }
                 else
                 {
-                    info.HtmlAnswers += content.ConvertToString();
+                    info.Context += content.ConvertToString();
                     await Task.Delay(50);
                 }
                 await InvokeAsync(StateHasChanged);
@@ -243,14 +242,13 @@ namespace AntSK.Pages.ChatPage.Components
                     info = new MessageInfo();
                     info.ID = Guid.NewGuid().ToString();
                     info.Context = content.ConvertToString();
-                    info.HtmlAnswers = content.ConvertToString();
                     info.CreateTime = DateTime.Now;
 
                     MessageList.Add(info);
                 }
                 else
                 {
-                    info.HtmlAnswers += content.ConvertToString();
+                    info.Context += content.ConvertToString();
                     await Task.Delay(50);
                 }
                 await InvokeAsync(StateHasChanged);
@@ -264,7 +262,7 @@ namespace AntSK.Pages.ChatPage.Components
             if (info.IsNotNull())
             {
                 // info!.HtmlAnswers = markdown.Transform(info.HtmlAnswers);
-                info!.HtmlAnswers = Markdown.ToHtml(info.HtmlAnswers);
+                info!.Context = Markdown.ToHtml(info.Context);
 
             }
             await InvokeAsync(StateHasChanged);
