@@ -8,6 +8,7 @@ using AntSK.Domain.Domain.Other;
 using AntSK.Domain.Options;
 using AntSK.Domain.Repositories;
 using AntSK.Domain.Utils;
+using AntSK.OCR;
 using DocumentFormat.OpenXml.Drawing.Diagrams;
 using LLama;
 using LLamaSharp.KernelMemory;
@@ -16,6 +17,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Configuration;
 using Microsoft.KernelMemory;
 using Microsoft.KernelMemory.Configuration;
+using Microsoft.KernelMemory.DataFormats;
 using Microsoft.KernelMemory.FileSystem.DevTools;
 using Microsoft.KernelMemory.MemoryStorage;
 using Microsoft.KernelMemory.MemoryStorage.DevTools;
@@ -104,19 +106,29 @@ namespace AntSK.Domain.Domain.Service
                         MaxTokensPerParagraph = kms.MaxTokensPerParagraph,
                         OverlappingTokens = kms.OverlappingTokens
                     });
+                //加载OCR
+                WithOcr(memoryBuild, kms);
                 //加载会话模型
                 WithTextGenerationByAIType(memoryBuild, chatModel, chatHttpClient);
                 //加载向量模型
                 WithTextEmbeddingGenerationByAIType(memoryBuild, embedModel, embeddingHttpClient);
                 //加载向量库
                 WithMemoryDbByVectorDB(memoryBuild);
-
+              
                 _memory = memoryBuild.Build<MemoryServerless>();
                 return _memory;
             }
             //else {
             //    return _memory;
             //}
+        }
+
+        private static void WithOcr(IKernelMemoryBuilder memoryBuild, Kmss kms)
+        {
+            if (kms.IsOCR == 1)
+            {
+                memoryBuild.WithCustomImageOcr(new AntSKOcrEngine());
+            }
         }
 
         private void WithTextEmbeddingGenerationByAIType(IKernelMemoryBuilder memory, AIModels embedModel,
@@ -193,7 +205,7 @@ namespace AntSK.Domain.Domain.Service
 
                     memory.WithOpenAITextGeneration(new OpenAIConfig()
                     {
-                        APIKey = "123",
+                        APIKey = "NotNull",
                         TextModel = chatModel.ModelName
                     }, null, chatHttpClient);
                     break;
@@ -262,7 +274,7 @@ namespace AntSK.Domain.Domain.Service
             {
                 foreach (var memoryDb in memoryDbs)
                 {
-                    var items = await memoryDb.GetListAsync(memoryIndex.Name, new List<MemoryFilter>() { new MemoryFilter().ByDocument(fileId) }, 100, true).ToListAsync();
+                    var items = await memoryDb.GetListAsync(memoryIndex.Name, new List<MemoryFilter>() { new MemoryFilter().ByDocument(fileId) }, 1000, true).ToListAsync();
                     docTextList.AddRange(items.Select(item => new KMFile()
                     {
                         DocumentId = item.GetDocumentId(),
@@ -319,7 +331,10 @@ namespace AntSK.Domain.Domain.Service
                 "application/pdf",
                 "application/json",
                 "text/x-markdown",
-                "text/markdown"
+                "text/markdown",
+                "image/jpeg",
+                "image/png",
+                "image/tiff"
             };
 
             string[] exceptExts = [".md", ".pdf"];
