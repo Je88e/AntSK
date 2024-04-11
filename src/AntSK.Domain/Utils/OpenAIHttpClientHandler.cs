@@ -41,7 +41,8 @@ namespace AntSK.Domain.Utils
                             // 这里是你要修改的 URL
                             Scheme = $"{xieyi}://{hostnew}/",
                             Host = host,
-                            Path = route + "v1/chat/completions",
+                            //Path = route + "v1/chat/completions",
+                            Path = route,
                         };
                         if (port.ConvertToInt32() != 0)
                         {
@@ -57,7 +58,8 @@ namespace AntSK.Domain.Utils
                             // 这里是你要修改的 URL
                             Scheme = $"{xieyi}://{host}/",
                             Host = host,
-                            Path = route + "v1/embeddings",
+                            //Path = route + "v1/embeddings",
+                            Path = route,
                         };
                         if (port.ConvertToInt32() != 0)
                         {

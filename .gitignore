@@ -347,3 +347,4 @@ ASALocalRun/
 /docker-compose.yml
 /src/AntSK/appsettings.json
 /postgresql
+/src/AntSK/wwwroot/files

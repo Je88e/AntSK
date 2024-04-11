@@ -9,6 +9,13 @@ namespace AntSK.Controllers
     [ApiController]
     public class FileController : ControllerBase
     {
+        private readonly IWebHostEnvironment _hostingEnvironment;
+
+        public FileController(IWebHostEnvironment hostingEnvironment)
+        {
+            _hostingEnvironment = hostingEnvironment;
+        }
+
         /// <summary>
         /// Upload FileName
         /// </summary>
@@ -22,9 +29,10 @@ namespace AntSK.Controllers
                 return BadRequest("没有选择要上传的文件。");
             }
 
-            // 创建文件存储的路径
-            var uploadsFolderPath = Path.Combine(Path.Combine(Directory.GetCurrentDirectory(), LLamaSharpOption.FileDirectory), "files");// 给定的文件夹名称
+        // 创建文件存储的路径
+        //var uploadsFolderPath = Path.Combine(Path.Combine(Directory.GetCurrentDirectory(), LLamaSharpOption.FileDirectory), "files");// 给定的文件夹名称
 
+            var uploadsFolderPath = Path.Combine(_hostingEnvironment.WebRootPath, "files");
             // 如果路径不存在，则创建一个新的目录
             if (!Directory.Exists(uploadsFolderPath))
             {

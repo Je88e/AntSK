@@ -1,3 +1,4 @@
+using Irony;
 using NPOI.HSSF.UserModel;
 using NPOI.SS.UserModel;
 using NPOI.SS.Util;
@@ -344,8 +345,6 @@ namespace AntSK.Domain
                 throw;
             }
         }
-
-
         public static IEnumerable<TResult> ExcelToListFileName<TResult>(Stream stream, string fileName) where TResult : new()
         {
             var propertyInfos = typeof(TResult).GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(p => p.CustomAttributes.Count() > 0)
@@ -550,6 +549,27 @@ namespace AntSK.Domain
             {
                 throw;
             }
+        }
+
+        public static List<string> ExcelToStringList(Stream stream)
+        {
+            var dataTable = ExcelToDataTable(stream,true);
+            List<string> stringList = new List<string>();
+
+            foreach (DataRow row in dataTable.Rows)
+            {
+                string rowData = "";
+
+                foreach (DataColumn column in dataTable.Columns)
+                {
+                    // 拼接列名和对应值
+                    rowData += $"{column.ColumnName}: {row[column]} ";
+                }
+
+                stringList.Add(rowData.Trim());
+            }
+
+            return stringList;
         }
 
         /// <summary>

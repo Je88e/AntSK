@@ -7,6 +7,7 @@ using AntSK.Domain.Domain.Other;
 using AntSK.Domain.Repositories;
 using Microsoft.KernelMemory;
 using Microsoft.KernelMemory.Handlers;
+using System.Reflection;
 using System.Text;
 
 namespace AntSK.Domain.Domain.Service
@@ -71,7 +72,7 @@ namespace AntSK.Domain.Domain.Service
                     case ImportType.Excel:
                         using (var fs = File.OpenRead(req.FilePath))
                         {
-                            var excelList= ExeclHelper.ExcelToList<KMSExcelModel>(fs);
+                            var excelList= ExeclHelper.ExcelToStringList(fs);
                             
                             _memory.Orchestrator.AddHandler<TextExtractionHandler>("extract_text");
                             _memory.Orchestrator.AddHandler<KMExcelHandler>("antsk_excel_split");
@@ -81,7 +82,7 @@ namespace AntSK.Domain.Domain.Service
                             StringBuilder text = new StringBuilder();
                             foreach (var item in excelList)
                             {
-                                text.AppendLine(@$"Question:{item.Question}{Environment.NewLine}Answer:{item.Answer}{KmsConstantcs.KMExcelSplit}");                            
+                                text.AppendLine(@$"{item}{KmsConstantcs.KMExcelSplit}");                            
                             }
                             var importResult = _memory.ImportTextAsync(text.ToString(), fileid, new TagCollection() { { KmsConstantcs.KmsIdTag, req.KmsId } }
                                   , index: KmsConstantcs.KmsIndex,
