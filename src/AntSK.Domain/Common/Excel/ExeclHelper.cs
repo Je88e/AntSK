@@ -563,7 +563,7 @@ namespace AntSK.Domain
                 foreach (DataColumn column in dataTable.Columns)
                 {
                     // 拼接列名和对应值
-                    rowData += $"{column.ColumnName}: {row[column]} ";
+                    rowData += $"{column.ColumnName}: {row[column]} ;";
                 }
 
                 stringList.Add(rowData.Trim());
