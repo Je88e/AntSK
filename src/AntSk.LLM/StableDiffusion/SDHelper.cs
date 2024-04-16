@@ -1,5 +1,4 @@
-﻿using System;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 
@@ -23,15 +22,16 @@ namespace AntSK.LLM.StableDiffusion
         static readonly Native.SdLogCallback sd_Log_Cb;
         static readonly Native.SdProgressCallback sd_Progress_Cb;
 
-        static SDHelper()
-        {
-            sd_Log_Cb = new Native.SdLogCallback(OnNativeLog);
-            Native.sd_set_log_callback(sd_Log_Cb, IntPtr.Zero);
+        //Hide the code below so that the process can be seen in console.
+        //static SDHelper()
+        //{
+        //    sd_Log_Cb = new Native.SdLogCallback(OnNativeLog);
+        //    Native.sd_set_log_callback(sd_Log_Cb, IntPtr.Zero);
 
-            sd_Progress_Cb = new Native.SdProgressCallback(OnProgressRunning);
-            Native.sd_set_progress_callback(sd_Progress_Cb, IntPtr.Zero);
+        //    sd_Progress_Cb = new Native.SdProgressCallback(OnProgressRunning);
+        //    Native.sd_set_progress_callback(sd_Progress_Cb, IntPtr.Zero);
 
-        }
+        //}
 
         public static bool Initialize(ModelParams modelParams)
         {
@@ -83,6 +83,16 @@ namespace AntSK.LLM.StableDiffusion
         {
             if (!IsInitialized) throw new ArgumentNullException("Model not loaded!");
 
+            IntPtr cnPtr = IntPtr.Zero;
+            if (textToImageParams.ControlCond != null)
+            {
+                if (textToImageParams.ControlCond.Width > 1)
+                {
+                    SDImage cnImg = GetSDImageFromBitmap(textToImageParams.ControlCond);
+                    cnPtr = GetPtrFromImage(cnImg);
+                }
+            }
+
             SDImagePtr sd_Image_ptr = Native.txt2img(sd_ctx,
                           textToImageParams.Prompt,
                           textToImageParams.NegativePrompt,
@@ -94,7 +104,7 @@ namespace AntSK.LLM.StableDiffusion
                           textToImageParams.SampleSteps,
                           textToImageParams.Seed,
                           textToImageParams.BatchCount,
-                          SDImagePtr.Zero,
+                          cnPtr,
                           textToImageParams.ControlStrength,
                           textToImageParams.StyleStrength,
                           textToImageParams.NormalizeInput,
@@ -198,6 +208,13 @@ namespace AntSK.LLM.StableDiffusion
             };
 
             return sd_Image;
+        }
+
+        private static IntPtr GetPtrFromImage(SDImage sdImg)
+        {
+            IntPtr imgPtr = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(SDImage)));
+            Marshal.StructureToPtr(sdImg, imgPtr, false);
+            return imgPtr;
         }
 
         private static void OnNativeLog(SdLogLevel level, string text, IntPtr data)
