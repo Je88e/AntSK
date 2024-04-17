@@ -78,8 +78,7 @@ builder.Services.AddBackgroundTaskBroker().AddHandler<ImportKMSTaskReq, BackGrou
     }
 }
 
-builder.Services.AddJesseConfiguration();   
-builder.Services.AddHttpClient("");
+builder.Services.AddJesseConfiguration();
 
 var app = builder.Build();
 
