@@ -34,23 +34,25 @@ builder.Services.AddControllers().AddJsonOptions(config =>
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddAntDesign();
+builder.Services.AddBlazoredLocalStorage(config =>
+        config.JsonSerializerOptions.WriteIndented = true);
+builder.Services.Configure<ProSettings>(builder.Configuration.GetSection("ProSettings"));
 
 builder.Services.AddAuthorizationCore();
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<AuthenticationStateProvider, AntSKAuthProvider>();
 
+builder.Services.AddAntSKSwagger();
+
 builder.Services.AddScoped(sp => new HttpClient
 {
     BaseAddress = new Uri(sp.GetService<NavigationManager>()!.BaseUri)
 });
-builder.Services.Configure<ProSettings>(builder.Configuration.GetSection("ProSettings"));
+
 builder.Services.AddServicesFromAssemblies("AntSK");
 builder.Services.AddServicesFromAssemblies("AntSK.Domain");
 builder.Services.AddSingleton(sp => new FunctionService(sp, [typeof(AntSK.App).Assembly]));
 builder.Services.AddScoped<FunctionTest>();
-builder.Services.AddAntSKSwagger();
-builder.Services.AddBlazoredLocalStorage(config =>
-        config.JsonSerializerOptions.WriteIndented = true);
 //Mapper
 builder.Services.AddMapper();
 //后台队列任务
@@ -75,6 +77,9 @@ builder.Services.AddBackgroundTaskBroker().AddHandler<ImportKMSTaskReq, BackGrou
         .WithAvx(NativeLibraryConfig.AvxLevel.Avx);
     }
 }
+
+builder.Services.AddJesseConfiguration();   
+builder.Services.AddHttpClient("");
 
 var app = builder.Build();
 
