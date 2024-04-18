@@ -1,7 +1,7 @@
-﻿using AntSK.Domain.Common;
-using AntSK.Domain.Repositories;
+﻿using AntSK.Domain.Repositories;
 using Newtonsoft.Json;
-using System.ComponentModel;
+using System.ComponentModel; 
+using System.Xml.Linq;
 
 namespace AntSK.plugins.Functions
 {
@@ -33,9 +33,12 @@ namespace AntSK.plugins.Functions
         public string GetWorkingHours([Description("用户名")] string userName)
         {
             using var httpClient = httpClientFactory.CreateClient("JCustom");
-            var response = httpClient.GetStringAsync($"http://172.16.1.160:16080/STARLIMS.PHARMA/YunJiRobot.GetWorkingHours？STARLIMSUser=ZHOUZJ&STARLIMSPass=Lims@123&UserName={userName}").Result;
+            var xml = httpClient.GetStringAsync($"http://172.16.1.160:16080/STARLIMS.PHARMA/YunJiRobot.GetWorkingHours.lims?STARLIMSUser=ZHOUZJ&STARLIMSPass=Lims@123&name={userName}").Result;
+            XDocument xdoc = XDocument.Parse(xml);
+            var dataset = xdoc.Element("DataSet"); 
+            string jsonString = JsonConvert.SerializeXNode(dataset.Element("ADD_WORKINGHOURSINFO"));
 
-            return response;
+            return jsonString; 
         }
     }
 }

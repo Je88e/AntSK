@@ -27,6 +27,7 @@ namespace AntSK.Domain.Domain.Other
                 if (model == null)
                 {
                     //Runtime.PythonDLL = @"D:\Programs\Python\Python311\python311.dll";
+                    HandleEnvirometVariablesPath(ref pythondllPath);
                     Runtime.PythonDLL = pythondllPath;
                     PythonEngine.Initialize();
                     PythonEngine.BeginAllowThreads();
@@ -54,6 +55,10 @@ namespace AntSK.Domain.Domain.Other
                     catch(Exception ex)
                     {
                         throw ex;
+                    }
+                    finally
+                    {
+                        Py.GIL().Dispose();
                     }
                 }
                 else
@@ -90,6 +95,31 @@ namespace AntSK.Domain.Domain.Other
         public static void Dispose()
         {
             Console.WriteLine("python dispose");
+        }
+
+        private static void HandleEnvirometVariablesPath(ref string path)
+        {
+            string[] segments = path.Split('\\');
+            StringBuilder expandedPath = new StringBuilder();
+
+            foreach (string segment in segments)
+            {
+                if (segment.StartsWith('%') && segment.EndsWith('%'))
+                {
+                    string variableName = segment.Substring(1, segment.Length - 2);
+                    string variableValue = Environment.ExpandEnvironmentVariables("%" + variableName + "%");
+                    expandedPath.Append(variableValue);
+                }
+                else
+                {
+                    expandedPath.Append(segment);
+                }
+                expandedPath.Append('\\');
+            }
+
+            expandedPath.Remove(expandedPath.Length - 1, 1); // Remove the trailing backslash
+
+            path = expandedPath.ToString(); 
         }
     }
 }
