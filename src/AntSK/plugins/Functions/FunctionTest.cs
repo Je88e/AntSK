@@ -33,7 +33,7 @@ namespace AntSK.plugins.Functions
         public string GetWorkingHours([Description("用户名")] string userName)
         {
             using var httpClient = httpClientFactory.CreateClient("JCustom");
-            var response = httpClient.GetStringAsync($"http://172.16.1.160:16080/STARLIMS.PHARMA/YunJiRobot.GetWorkingHours？STARLIMSUser=ZHOUZJ&STARLIMSPass=Lims@123&UserName={userName}").Result;
+            var response = httpClient.GetStringAsync($"http://172.16.1.160:16080/STARLIMS.PHARMA/YunJiRobot.GetWorkingHours？STARLIMSUser=ZHOUZJ&STARLIMSPass=Lims@123&name={userName}").Result;
 
             return response;
         }
