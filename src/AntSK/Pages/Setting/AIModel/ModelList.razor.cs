@@ -17,6 +17,13 @@ namespace AntSK.Pages.Setting.AIModel
         protected IAIModels_Repositories _aIModels_Repositories { get; set; }
 
         [Inject]
+        protected IApps_Repositories _apps_Repositories{ get; set; }
+        [Inject]
+        protected IKmss_Repositories _kmss_Repositories { get; set; }
+
+        [Inject] protected MessageService? Message { get; set; }
+
+        [Inject]
         IConfirmService _confirmService { get; set; }
 
 
@@ -44,12 +51,12 @@ namespace AntSK.Pages.Setting.AIModel
 
         public async Task AddModel()
         {
-            NavigationManager.NavigateTo("/setting/model/add");
+            NavigationManager.NavigateTo("/modelmanager/model/add");
         }
 
         public void Edit(string modelid)
         {
-            NavigationManager.NavigateTo("/setting/model/add/" + modelid);
+            NavigationManager.NavigateTo("/modelmanager/model/add/" + modelid);
         }
 
         public async Task Delete(string modelid)
@@ -59,6 +66,16 @@ namespace AntSK.Pages.Setting.AIModel
             var result = await _confirmService.Show(content, title, ConfirmButtons.YesNo);
             if (result == ConfirmResult.Yes)
             {
+                if (_apps_Repositories.IsAny(p => p.ChatModelID == modelid || p.EmbeddingModelID == modelid))
+                {
+                    _ = Message.Error("该模型有应用在使用，请先删除应用后才允许删除该模型");
+                    return;
+                }
+                if (_kmss_Repositories.IsAny(p => p.ChatModelID == modelid || p.EmbeddingModelID == modelid))
+                {
+                    _ = Message.Error("该模型有知识库在使用，请先删除知识库后才允许删除该模型");
+                    return;
+                }
                 await _aIModels_Repositories.DeleteAsync(modelid);
                 await InitData("");
             }
