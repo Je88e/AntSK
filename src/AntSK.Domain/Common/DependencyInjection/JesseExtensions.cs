@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,8 +14,13 @@ namespace AntSK.Domain.Common.DependencyInjection
         public static IServiceCollection AddJesseConfiguration(this IServiceCollection services)
         {
             services.AddHttpClient("JCustom");
-
             return services;
+        }
+
+        public static WebApplication UseJesseSetting(this WebApplication app)
+        {
+            app.UseCors(option=>option.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+            return app;
         }
     }
 }

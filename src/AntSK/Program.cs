@@ -90,8 +90,8 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-//app.UseHttpsRedirection();
 
+//app.UseHttpsRedirection(); 
 app.UseStaticFiles();
 
 //扩展初始化实现
@@ -100,6 +100,8 @@ app.LoadFun();
 app.InitDbData();
 
 app.UseRouting();
+
+app.UseJesseSetting();
 
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
