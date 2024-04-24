@@ -29,6 +29,7 @@ namespace AntSK.Domain.Domain.Other.Bge
                     //Runtime.PythonDLL = @"D:\Programs\Python\Python311\python311.dll";
                     if (string.IsNullOrEmpty(Runtime.PythonDLL))
                     {
+                        HandleEnvirometVariablesPath(ref pythondllPath);
                         Runtime.PythonDLL = pythondllPath;
                     }
                     PythonEngine.Initialize();
@@ -92,6 +93,31 @@ namespace AntSK.Domain.Domain.Other.Bge
         public static void Dispose()
         {
             Console.WriteLine("python dispose");
+        }
+
+        private static void HandleEnvirometVariablesPath(ref string path)
+        {
+            string[] segments = path.Split('\\');
+            StringBuilder expandedPath = new StringBuilder();
+
+            foreach (string segment in segments)
+            {
+                if (segment.StartsWith('%') && segment.EndsWith('%'))
+                {
+                    string variableName = segment.Substring(1, segment.Length - 2);
+                    string variableValue = Environment.ExpandEnvironmentVariables("%" + variableName + "%");
+                    expandedPath.Append(variableValue);
+                }
+                else
+                {
+                    expandedPath.Append(segment);
+                }
+                expandedPath.Append('\\');
+            }
+
+            expandedPath.Remove(expandedPath.Length - 1, 1); // Remove the trailing backslash
+
+            path = expandedPath.ToString(); 
         }
     }
 }
