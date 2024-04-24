@@ -12,13 +12,8 @@ namespace AntSK.Domain.Common.DependencyInjection
             services.AddHttpClient("JCustom");
 
             services.AddChatDoc(configuration);
-            return services;
-        }
 
-        public static WebApplication UseJesseSetting(this WebApplication app)
-        {
-            app.UseCors(option=>option.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
-            return app;
+            return services;
         }
     }
 }

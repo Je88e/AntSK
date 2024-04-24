@@ -107,7 +107,8 @@ app.InitDbData();
 
 app.UseRouting();
 
-app.UseJesseSetting();
+//跨域
+app.UseCors(option => option.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
 
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
