@@ -17,7 +17,6 @@ namespace AntSK.Controllers
             _chatDocService = chatDocService;
         }
 
-
         [HttpPost]
         public async Task<IActionResult> FileUpload(IFormFile file, string? callbackUrl)
         {

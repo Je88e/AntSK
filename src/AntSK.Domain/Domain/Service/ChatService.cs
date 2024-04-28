@@ -135,7 +135,6 @@ namespace AntSK.Domain.Domain.Service
                         rerank.Add(questions);
                         rerank.Add(item.Text);
                         item.RerankScore = BegRerankConfig.Rerank(rerank);
-                      
                     }
                     relevantSourceList = relevantSourceList.OrderByDescending(p => p.RerankScore).Take(app.MaxMatchesCount).ToList();
                 }

@@ -256,7 +256,6 @@ namespace AntSK.Pages.ChatPage.Components
                 }       
             }
 
-
             return await Task.FromResult(true);
         }
 

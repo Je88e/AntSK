@@ -28,13 +28,14 @@ namespace AntSK.Domain.Domain.Other.Bge
                 {
                     if (string.IsNullOrEmpty(Runtime.PythonDLL))
                     {
+                        HandleEnvirometVariablesPath(ref pythondllPath);
                         Runtime.PythonDLL = pythondllPath;
                     }
                     PythonEngine.Initialize();
+                    using var pyGIL = GIL();
                     try
                     {
-                        using (GIL())// 初始化Python环境的Global Interpreter Lock)
-                        {
+                       
                             dynamic modelscope = Py.Import("modelscope");
                             dynamic flagEmbedding = Py.Import("FlagEmbedding");
 
@@ -42,11 +43,14 @@ namespace AntSK.Domain.Domain.Other.Bge
                             dynamic flagReranker = flagEmbedding.FlagReranker(model_dir, use_fp16: true);
                             model = flagReranker;
                             return model;
-                        }
                     }
                     catch (Exception ex)
                     {
                         throw ex;
+                    }
+                    finally
+                    {
+                        pyGIL.Dispose();
                     }
                 }
                 else
@@ -59,23 +63,50 @@ namespace AntSK.Domain.Domain.Other.Bge
 
         public static double Rerank(List<string> list)
         {
-            using (GIL())
+            using var pyGIL = GIL();
+            try
             {
-                try
+                PyList pyList = new PyList();
+                foreach (string item in list)
                 {
-                    PyList pyList = new PyList();
-                    foreach (string item in list)
-                    {
-                        pyList.Append(item.ToPython()); // 将C# string转换为Python对象并添加到PyList中
-                    }
-                    PyObject result = model.compute_score(pyList, normalize: true);
-                    return result.As<double>();
+                    pyList.Append(item.ToPython()); // 将C# string转换为Python对象并添加到PyList中
                 }
-                catch (Exception ex)
-                {
-                    throw ex;
-                }
+                PyObject result = model.compute_score(pyList, normalize: true);
+                return result.As<double>();
             }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                pyGIL.Dispose();
+            }
+        }
+
+        private static void HandleEnvirometVariablesPath(ref string path)
+        {
+            string[] segments = path.Split('\\');
+            StringBuilder expandedPath = new StringBuilder();
+
+            foreach (string segment in segments)
+            {
+                if (segment.StartsWith('%') && segment.EndsWith('%'))
+                {
+                    string variableName = segment.Substring(1, segment.Length - 2);
+                    string variableValue = Environment.ExpandEnvironmentVariables("%" + variableName + "%");
+                    expandedPath.Append(variableValue);
+                }
+                else
+                {
+                    expandedPath.Append(segment);
+                }
+                expandedPath.Append('\\');
+            }
+
+            expandedPath.Remove(expandedPath.Length - 1, 1); // Remove the trailing backslash
+
+            path = expandedPath.ToString();
         }
     }
 }

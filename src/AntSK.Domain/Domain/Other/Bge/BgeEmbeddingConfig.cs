@@ -34,10 +34,9 @@ namespace AntSK.Domain.Domain.Other.Bge
                     }
                     PythonEngine.Initialize();
                     PythonEngine.BeginAllowThreads();
+                    using var pyGIL = GIL();
                     try
                     {
-                        using (GIL())// 初始化Python环境的Global Interpreter Lock)
-                        {
                             dynamic modelscope = Import("modelscope");
                             //dynamic model_dir = modelscope.snapshot_download("AI-ModelScope/bge-large-zh-v1.5", revision: "master");
                             dynamic model_dir = modelscope.snapshot_download(modelName, revision: "master");
@@ -52,15 +51,19 @@ namespace AntSK.Domain.Domain.Other.Bge
                               );
                             model = hugginmodel;
                             return hugginmodel;
-                        }
                     }
                     catch (Exception ex)
                     {
+                        Console.WriteLine(ex.ToString());
                         throw ex;
+                    }
+                    finally
+                    {
+                        pyGIL.Dispose(); 
                     }
                 }
                 else
-                    return model;
+                    return model; 
             }
         }
 
