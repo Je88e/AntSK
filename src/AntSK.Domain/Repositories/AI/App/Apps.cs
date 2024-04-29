@@ -44,6 +44,9 @@ namespace AntSK.Domain.Repositories
         /// </summary>
         public string? EmbeddingModelID { get; set; }
 
+        public string? RerankModelID { get; set; }
+
+
         public string? ImageModelID { get; set; }
         /// <summary>
         /// 温度
@@ -54,6 +57,7 @@ namespace AntSK.Domain.Repositories
         /// <summary>
         /// 提示词
         /// </summary>
+        [SugarColumn(ColumnDataType = "varchar(2000)")]
         public string? Prompt { get; set; }
 
         /// <summary>
@@ -77,5 +81,31 @@ namespace AntSK.Domain.Repositories
         /// API调用秘钥
         /// </summary>
         public string? SecretKey { get; set; }
+
+        /// <summary>
+        /// 相似度
+        /// </summary>
+        [SugarColumn(DefaultValue = "70")]
+        public double Relevance { get; set; } = 70f;
+
+        /// <summary>
+        /// 提问最大token数
+        /// </summary>
+        [SugarColumn(DefaultValue = "2048")]
+        public int MaxAskPromptSize { get; set; } = 2048;
+        /// <summary>
+        /// 向量匹配数
+        /// </summary>
+        [SugarColumn(DefaultValue = "3")]
+        public int MaxMatchesCount { get; set; } = 3;
+
+
+        [SugarColumn(DefaultValue = "20")]
+        public int RerankCount { get; set; } = 20;
+        /// <summary>
+        /// 回答最大token数
+        /// </summary>
+        [SugarColumn(DefaultValue = "2048")]
+        public int AnswerTokens { get; set; } = 2048;
     }
 }

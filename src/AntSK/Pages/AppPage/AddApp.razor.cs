@@ -1,4 +1,5 @@
 ﻿using AntDesign;
+using AntSK.Domain.Domain.Model.Constant;
 using AntSK.Domain.Domain.Model.Enum;
 using AntSK.Domain.Domain.Service;
 using AntSK.Domain.Repositories;
@@ -46,6 +47,7 @@ namespace AntSK.Pages.AppPage
 
         private List<AIModels> _chatList;
         private List<AIModels> _embedingList;
+        private List<AIModels> _rerankList;
         private List<AIModels> _imageList;
         protected override async Task OnInitializedAsync()
         {
@@ -55,6 +57,7 @@ namespace AntSK.Pages.AppPage
             var models=_aimodels_Repositories.GetList();
             _chatList = models.Where(p => p.AIModelType == AIModelType.Chat).ToList();
             _embedingList = models.Where(p => p.AIModelType == AIModelType.Embedding).ToList();
+            _rerankList = models.Where(p => p.AIModelType == AIModelType.Rerank).ToList();
             _imageList = models.Where(p => p.AIModelType == AIModelType.Image).ToList();
 
             _functionService.SearchMarkedMethods();
@@ -89,7 +92,14 @@ namespace AntSK.Pages.AppPage
                 }
                 _appModel.KmsIdList = string.Join(",", kmsIds);
             }
-
+            if (_appModel.Type == AppType.kms.ToString())
+            {
+                if (string.IsNullOrEmpty(_appModel.Prompt)|| !_appModel.Prompt.Contains("{{$doc}}") || !_appModel.Prompt.Contains("{{$input}}"))
+                {
+                    _ = Message.Error("知识库提示词必须包含 {{$doc}} 和 {{$input}}", 2);
+                    return;
+                }
+            }
             if (apiIds.IsNotNull())
             {
                 _appModel.ApiFunctionList = string.Join(",", apiIds);
@@ -99,7 +109,7 @@ namespace AntSK.Pages.AppPage
 
                 _appModel.NativeFunctionList = string.Join(",", funIds);
             }
-
+ 
             if (string.IsNullOrEmpty(AppId))
             {
                 //新增
@@ -133,7 +143,26 @@ namespace AntSK.Pages.AppPage
 
         private void NavigateModelList()
         {
-            NavigationManager.NavigateTo("/setting/modellist");
+            NavigationManager.NavigateTo("/modelmanager/modellist");
+        }
+
+        private void NavigateKmsList()
+        {
+            NavigationManager.NavigateTo("/KmsList");
+        }
+
+
+        private void OnAppTypeChange(string value)
+        {
+            if (value == AppType.kms.ToString() && string.IsNullOrEmpty( _appModel.Prompt))
+            {
+                _appModel.Prompt = KmsConstantcs.KmsPrompt;
+            }
+
+            if (value == AppType.chat.ToString())
+            {
+                _appModel.Prompt = "";
+            }
         }
     }
 

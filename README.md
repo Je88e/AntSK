@@ -8,7 +8,7 @@
 
 - **内存内核 (Kernel Memory)**：具备持续学习和存储知识点的能力，AntSK 拥有长期记忆功能，累积经验，提供更个性化的交互体验。
 
-- **知识库**：通过文档（Word、PDF、Excel、Txt、Markdown、Json、PPT）等形式导入知识库，可以进行知识库问答。
+- **知识库**：通过文档（Word、PDF、Excel、Txt、Markdown、Json、PPT）等形式导入知识库，可以进行知识库问答，支持本地bge-embedding 向量模型 ，以及bge-rerank 重排模型。
 
 - **文生图**：集成**StableDiffusion** 本地模型，可以进行文生图。
 
@@ -42,15 +42,19 @@ AntSK 适用于多种业务场景，例如：
 
 ## ✏️功能示例
 ### 在线演示
-```
-https://antsk.ai-dotnet.com/
-```
+
+[文档地址](http://antsk.cn/)
+
+[体验地址](https://antsk.ai-dotnet.com/)
+
 ```
 默认账号：test
 
 默认密码：test
 
 由于云服务器配置较低，无法运行本地模型，所以把系统设置权限关闭了，大家看看界面即可，要使用本地模型，请下载自行使用
+
+请勿在演示站点上传敏感信息
 ```
 
 ### 其他功能示例
@@ -89,7 +93,7 @@ version: '3.8'
 services:
   antsk:
     container_name: antsk
-    image: registry.cn-hangzhou.aliyuncs.com/AIDotNet/antsk:v0.2.3
+    image: registry.cn-hangzhou.aliyuncs.com/AIDotNet/antsk:v0.3.1
     ports:
       - 5000:5000
     networks:
@@ -102,6 +106,7 @@ services:
     volumes:
       - ./appsettings.json:/app/appsettings.json # 本地配置文件 需要放在同级目录
       - D://model:/app/model
+      - D://model:/root/.cache/modelscope/hub/AI-ModelScope #使用Llamafactory时需要挂载 否则初始化的环境重启后会丢失
 networks:
   antsk:
 ```
@@ -209,7 +214,7 @@ DB我使用的是CodeFirst模式，只要配置好数据库链接，表结构是
 想了解更多信息或开始使用 **AntSK**，可以关注我的公众号以及加入交流群。
 
 ## ☎️联系我
-如有任何问题或建议，请通过以下方式关注我的公众号，发消息与我联系，我们也有交流群，可以发送进群等消息，然后我会拉你进交流群
+如有任何问题或建议，请通过以下方式关注我的公众号《许泽宇的技术分享》，发消息与我联系，我们也有AIDotnet交流群，可以发送进群等消息，然后我会拉你进交流群
 ![公众号](https://github.com/AIDotNet/AntSK/blob/main/images/gzh.jpg)
 
 ## 🌟 Star History

@@ -6,14 +6,18 @@ using AntSK.Domain.Domain.Model.Enum;
 using AntSK.Domain.Repositories;
 using AntSK.Domain.Utils;
 using AntSK.LLM.StableDiffusion;
+using AntSK.Models;
 using Blazored.LocalStorage;
+using DocumentFormat.OpenXml.InkML;
 using Markdig;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using Microsoft.JSInterop;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
 using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace AntSK.Pages.ChatPage.Components
 {
@@ -36,8 +40,10 @@ namespace AntSK.Pages.ChatPage.Components
         [Inject] IChatService _chatService { get; set; }
         [Inject] IJSRuntime _JSRuntime { get; set; }
         [Inject] ILocalStorageService _localStorage { get; set; }
+        [Inject] IChats_Repositories _chats_Repositories { get; set; }
+        [Inject] ProtectedSessionStorage _protectedSessionStore { get; set; }
 
-        protected List<MessageInfo> MessageList = [];
+        protected List<Chats> MessageList = [];
         protected string? _messageInput;
         protected string _json = "";
         protected bool Sendding = false;
@@ -48,25 +54,87 @@ namespace AntSK.Pages.ChatPage.Components
 
         private List<RelevantSource> _relevantSources = new List<RelevantSource>();
 
+        private string _userName { get; set; }
+
         protected override async Task OnInitializedAsync()
         {
             await base.OnInitializedAsync();
             await LoadData();
-            var msgs = await _localStorage.GetItemAsync<List<MessageInfo>>("msgs");
+          
+        }
+
+        protected override async Task OnParametersSetAsync()
+        {
+            await LoadData();
+        }
+
+        /// <summary>
+        /// 初始化加载数据
+        /// </summary>
+        /// <returns></returns>
+        private async Task LoadData()
+        {
+            app = _apps_Repositories.GetFirst(p => p.Id == AppId);
+            var userSessionStorageResult = await _protectedSessionStore.GetAsync<UserSession>("UserSession");
+            var userSession = userSessionStorageResult.Success ? userSessionStorageResult.Value : null;
+            _userName = userSession?.UserName;
+            await GetMsgList();
+        }
+        /// <summary>
+        /// 获取聊天记录列表
+        /// </summary>
+        /// <returns></returns>
+        private async Task GetMsgList()
+        {
+            List<Chats> msgs = new List<Chats>();
+            if (string.IsNullOrEmpty(_userName))
+            {
+                //匿名访问使用localstore
+                 msgs = await _localStorage.GetItemAsync<List<Chats>>($"msgs:{AppId}");
+            }
+            else 
+            {
+                msgs = await _chats_Repositories.GetListAsync(p => p.AppId == AppId && p.UserName == _userName);
+            }
             if (msgs != null && msgs.Count > 0)
             {
                 MessageList = msgs;
             }
         }
 
-        protected override async Task OnParametersSetAsync()
+        /// <summary>
+        /// 清空聊天记录列表
+        /// </summary>
+        /// <returns></returns>
+        private async Task ClearMsgList() 
         {
-           await LoadData();
+            MessageList.Clear();
+            if (string.IsNullOrEmpty(_userName))
+            {
+                await _localStorage.SetItemAsync<List<Chats>>($"msgs:{AppId}", MessageList);
+            }
+            else 
+            {
+                await _chats_Repositories.DeleteAsync(p => p.AppId == AppId && p.UserName == _userName);
+            }        
         }
-
-        private async Task LoadData()
+        /// <summary>
+        /// 保存聊天记录
+        /// </summary>
+        /// <returns></returns>
+        private async Task SaveMsg(List<Chats> MessageList)
         {
-            app =await _apps_Repositories.GetFirstAsync(p => p.Id == AppId);
+            if (string.IsNullOrEmpty(_userName))
+            {
+                await _localStorage.SetItemAsync<List<Chats>>($"msgs:{AppId}", MessageList);
+            }
+            else 
+            {
+                if (MessageList.Count() > 0)
+                {
+                    await _chats_Repositories.InsertAsync(MessageList.LastOrDefault());
+                }
+            }          
         }
 
         protected async Task OnClearAsync()
@@ -78,11 +146,11 @@ namespace AntSK.Pages.ChatPage.Components
                 var result = await _confirmService.Show(content, title, ConfirmButtons.YesNo);
                 if (result == ConfirmResult.Yes)
                 {
-                    MessageList.Clear();
-                    await _localStorage.SetItemAsync<List<MessageInfo>>("msgs", MessageList);
+
+                    await ClearMsgList();
                     await InvokeAsync(StateHasChanged);
                     _ = Message.Info("清理成功");
-            
+
                 }
             }
             else
@@ -102,18 +170,25 @@ namespace AntSK.Pages.ChatPage.Components
                 var filePath = fileList.FirstOrDefault()?.Url;
                 var fileName = fileList.FirstOrDefault()?.FileName;
 
-                MessageList.Add(new MessageInfo()
+                var chat = new Chats()
                 {
-                    ID = Guid.NewGuid().ToString(),
+                    Id = Guid.NewGuid().ToString(),
+                    UserName = _userName,
+                    AppId = AppId,
                     Context = _messageInput,
                     CreateTime = DateTime.Now,
                     IsSend = true
-                });
-       
+                };
+                MessageList.Add(chat);
+                if (!string.IsNullOrEmpty(_userName))
+                {
+                    await _chats_Repositories.InsertAsync(chat);
+                }
+
                 Sendding = true;
-                await SendAsync(_messageInput,filePath);
+                await SendAsync(_messageInput, filePath);
                 _messageInput = "";
-                Sendding = false; 
+                Sendding = false;
             }
             catch (System.Exception ex)
             {
@@ -123,7 +198,9 @@ namespace AntSK.Pages.ChatPage.Components
             }
 
         }
-        protected async Task OnCopyAsync(MessageInfo item)
+
+
+        protected async Task OnCopyAsync(Chats item)
         {
             await Task.Run(() =>
             {
@@ -135,57 +212,89 @@ namespace AntSK.Pages.ChatPage.Components
         {
             await Task.Run(() =>
             {
-                MessageList = MessageList.Where(w => w.ID != id).ToList();
+                MessageList = MessageList.Where(w => w.Id != id).ToList();
             });
         }
 
+        /// <summary>
+        /// 开始发送消息
+        /// </summary>
+        /// <param name="questions"></param>
+        /// <param name="filePath"></param>
+        /// <returns></returns>
         protected async Task<bool> SendAsync(string questions, string? filePath)
         {
-            ChatHistory history = new ChatHistory();
+
             //处理多轮会话
             Apps app = _apps_Repositories.GetFirst(p => p.Id == AppId);
-            if (MessageList.Count > 0)
-            {
-                history = await _chatService.GetChatHistory(MessageList);
-            }
+            ChatHistory history;
 
             if (app.Type == AppType.chat.ToString() && (filePath == null || app.EmbeddingModelID.IsNull()))
             {
-                await SendChat(questions, history, app);
+                if (string.IsNullOrEmpty(app.Prompt))
+                {
+                    app.Prompt = "你叫AntSK,是一个人工智能助手";
+                }
+                //聊天应用增加系统角色
+                history = new ChatHistory(app.Prompt.ConvertToString());
+
+                if (MessageList.Count > 0)
+                {
+                    history = await _chatService.GetChatHistory(MessageList, history);
+                }
+                await SendChat(history, app);
             }
             else if (app.Type == AppType.kms.ToString() || filePath != null || app.EmbeddingModelID.IsNotNull())
             {
+                history = new ChatHistory();
+
+                if (MessageList.Count > 0)
+                {
+                    history = await _chatService.GetChatHistory(MessageList, history);
+                }
                 await SendKms(questions, history, app, filePath);
-               
+
             }
             else if (app.Type == AppType.img.ToString())
             {
-                await SendImg(questions,app);
+                await SendImg(questions, app);
             }
 
             //缓存消息记录
             if (app.Type != AppType.img.ToString())
             {
-                await _localStorage.SetItemAsync<List<MessageInfo>>("msgs", MessageList);
+                await SaveMsg(MessageList);
+                if (OnRelevantSources.IsNotNull())
+                {
+                    await OnRelevantSources.InvokeAsync(_relevantSources);
+                }
             }
 
 
             return await Task.FromResult(true);
         }
 
+        /// <summary>
+        /// 发送图片对话
+        /// </summary>
+        /// <param name="questions"></param>
+        /// <param name="app"></param>
+        /// <returns></returns>
         private async Task SendImg(string questions,Apps app)
         {
-            MessageInfo info = new MessageInfo();
-            info.ID = Guid.NewGuid().ToString();
+            Chats info = new Chats();
+            info.Id = Guid.NewGuid().ToString();
+            info.UserName=_userName;
+            info.AppId=AppId;
             info.CreateTime = DateTime.Now;
             var base64= await _chatService.SendImgByAppAsync(app, questions);
             if (string.IsNullOrEmpty(base64))
             {
-                info.HtmlAnswers = "生成失败";
+                info.Context = "生成失败";
             }
             else 
             {
-                info.HtmlAnswers = $"<img src=\"data:image/jpeg;base64,{base64}\" alt=\"Base64 Image\" />";
+                info.Context = $"<img src=\"data:image/jpeg;base64,{base64}\" alt=\"Base64 Image\" />";
             }
             MessageList.Add(info);
         }
@@ -199,28 +308,23 @@ namespace AntSK.Pages.ChatPage.Components
         /// <returns></returns>
         private async Task SendKms(string questions, ChatHistory history, Apps app, string? filePath)
         {
-            MessageInfo info = null;
+            Chats info = new Chats()
+            {
+                Id = Guid.NewGuid().ToString(),
+                AppId = AppId,
+                UserName = _userName,
+                CreateTime = DateTime.Now,
+                Context=""
+            };
+            MessageList.Add(info);
             var chatResult = _chatService.SendKmsByAppAsync(app, questions, history, filePath, _relevantSources);
             await foreach (var content in chatResult)
             {
-                if (info == null)
-                {
-                    info = new MessageInfo();
-                    info.ID = Guid.NewGuid().ToString();
-                    info.Context = content.ConvertToString();
-                    info.HtmlAnswers = content.ConvertToString();
-                    info.CreateTime = DateTime.Now;
 
-                    MessageList.Add(info);
-                }
-                else
-                {
-                    info.HtmlAnswers += content.ConvertToString();
-                    await Task.Delay(50);
-                }
+                info.Context += content.ConvertToString();
+                await Task.Delay(50);
                 await InvokeAsync(StateHasChanged);
             }
-            await OnRelevantSources.InvokeAsync(_relevantSources);
             //全部处理完后再处理一次Markdown
             await MarkDown(info);
         }
@@ -228,29 +332,29 @@ namespace AntSK.Pages.ChatPage.Components
         /// <summary>
         /// 发送普通对话
         /// </summary>
-        /// <param name="questions"></param>
         /// <param name="history"></param>
         /// <param name="app"></param>
         /// <returns></returns>
-        private async Task SendChat(string questions, ChatHistory history, Apps app)
+        private async Task SendChat(ChatHistory history, Apps app)
         {
-            MessageInfo info = null;
-            var chatResult = _chatService.SendChatByAppAsync(app, questions, history);
+            Chats info = null;
+            var chatResult = _chatService.SendChatByAppAsync(app, history);
             await foreach (var content in chatResult)
             {
                 if (info == null)
                 {
-                    info = new MessageInfo();
-                    info.ID = Guid.NewGuid().ToString();
+                    info = new Chats();
+                    info.Id = Guid.NewGuid().ToString();
+                    info.UserName = _userName;
+                    info.AppId = AppId;
                     info.Context = content.ConvertToString();
-                    info.HtmlAnswers = content.ConvertToString();
                     info.CreateTime = DateTime.Now;
 
                     MessageList.Add(info);
                 }
                 else
                 {
-                    info.HtmlAnswers += content.ConvertToString();
+                    info.Context += content.ConvertToString();
                     await Task.Delay(50);
                 }
                 await InvokeAsync(StateHasChanged);
@@ -259,12 +363,17 @@ namespace AntSK.Pages.ChatPage.Components
             await MarkDown(info);
         }
 
-        private async Task MarkDown(MessageInfo info)
+        /// <summary>
+        /// 处理markdown
+        /// </summary>
+        /// <param name="info"></param>
+        /// <returns></returns>
+        private async Task MarkDown(Chats info)
         {
             if (info.IsNotNull())
             {
                 // info!.HtmlAnswers = markdown.Transform(info.HtmlAnswers);
-                info!.HtmlAnswers = Markdown.ToHtml(info.HtmlAnswers);
+                info!.Context = Markdown.ToHtml(info.Context);
 
             }
             await InvokeAsync(StateHasChanged);
@@ -272,6 +381,10 @@ namespace AntSK.Pages.ChatPage.Components
             await _JSRuntime.ScrollToBottomAsync("scrollDiv");
         }
 
+        /// <summary>
+        /// 上传文件事件
+        /// </summary>
+        /// <param name="fileInfo"></param>
         private void OnSingleCompleted(UploadInfo fileInfo)
         {
             fileList.Add(new()
@@ -283,6 +396,11 @@ namespace AntSK.Pages.ChatPage.Components
             });
             _kMService.OnSingleCompleted(fileInfo);
         }
+        /// <summary>
+        /// 移除文件事件
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
         private async Task<bool> HandleFileRemove(UploadFileItem file)
         {
             fileList.RemoveAll(x => x.FileName == file.FileName);
