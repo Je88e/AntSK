@@ -110,7 +110,7 @@ namespace AntSK.Domain.Domain.Service
                     case ImportType.Excel:
                         using (var fs = File.OpenRead(req.FilePath))
                         {
-                            var excelList= ExeclHelper.ExcelToStringList(fs);
+                            var excelList= ExcelHelper.ExcelToStringList(fs);
                             
                             _memory.Orchestrator.AddHandler<TextExtractionHandler>("extract_text");
                             _memory.Orchestrator.AddHandler<KMExcelHandler>("antsk_excel_split");

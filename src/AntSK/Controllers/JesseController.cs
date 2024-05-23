@@ -1,6 +1,8 @@
-﻿using AntSK.Domain.Domain.Interface;
+﻿using AntSK.Domain;
+using AntSK.Domain.Domain.Interface;
 using AntSK.Domain.Domain.Model.Constant;
 using AntSK.Domain.Domain.Model.Dto;
+using AntSK.Domain.Domain.Other;
 using AntSK.Domain.Domain.Other.Bge;
 using AntSK.Domain.Options;
 using AntSK.Domain.Repositories;
@@ -10,6 +12,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.KernelMemory;
+using Microsoft.KernelMemory.Handlers;
+using Newtonsoft.Json;
+using Org.BouncyCastle.Ocsp;
+using System.Data;
+using System.Text;
 
 namespace AntSK.Controllers
 {
@@ -21,7 +28,9 @@ namespace AntSK.Controllers
         private readonly IKMService _kMService;
         private readonly IKmsDetails_Repositories _kmsDetails_Repositories;
         private MemoryServerless _kernelmemory;
+        private MemoryServerless _siriomemory;
         private readonly IOptions<LocalBgeConfigOptions> _bgeOptions;
+        private readonly IWebHostEnvironment _hostingEnvironment;
 
         private static string KmsId => "a2016a9b-264a-4c43-9b0c-9d584c9e2ffd";
         public JesseController(
@@ -29,13 +38,17 @@ namespace AntSK.Controllers
         IKMService kMService,
         IKmsDetails_Repositories kmsDetails_Repositories,
         [FromKeyedServices("JKMemory")] MemoryServerless kernelmemory,
-        IOptions<LocalBgeConfigOptions> bgeOptions)
+        [FromKeyedServices("SirioMemory")] MemoryServerless siriomemory,
+        IOptions<LocalBgeConfigOptions> bgeOptions,
+        IWebHostEnvironment hostingEnvironment)
         {
             _functionTest = functionTest;
             _kMService = kMService;
             _kmsDetails_Repositories = kmsDetails_Repositories;
             _kernelmemory = kernelmemory;
+            _siriomemory = siriomemory;
             _bgeOptions = bgeOptions;
+            _hostingEnvironment = hostingEnvironment;
         }
 
         [HttpGet]
@@ -109,5 +122,73 @@ namespace AntSK.Controllers
             var fileName = fileDetail.FileName;
             return fileName;
         }
+
+        [HttpPost]
+        public async Task<List<RelevantSource>> SimilaritySearchSirio([FromForm] string query)
+        {
+
+            var _memory = await SettingKernelMemoryForSirio(this._siriomemory);
+
+            var searchResult = await _memory.SearchAsync(query);
+            var data = new List<RelevantSource>();
+            if (!searchResult.NoResult)
+            {
+                BegRerankConfig.LoadModel(_bgeOptions.Value.PythonDllPath, _bgeOptions.Value.ReRankerModel);
+                data.AddRange(
+                    searchResult.Results.SelectMany(item => item.Partitions.Select(part => new RelevantSource()
+                    {
+                        SourceName = item.SourceName,
+                        Text = part.Text,
+                        Relevance = part.Relevance,
+                        RerankScore = BegRerankConfig.Rerank(new List<string>() { query, part.Text })
+                    })).ToList()
+                );
+
+                foreach (var guid in searchResult.Results.Select(c => c.DocumentId).Distinct())
+                {
+                    await _memory.DeleteDocumentAsync(guid);
+                }
+            }
+
+            return data.OrderByDescending(p => p.RerankScore).ToList();
+        }
+
+        [HttpPost]
+        public async Task<List<List<RelevantSource>>> SimilaritySearchListSirio([FromForm] string strings)
+        {
+            List<string> listItem = JsonConvert.DeserializeObject<List<string>>(strings);
+
+            var _memory = _siriomemory;
+
+            var listResults = new List<List<RelevantSource>>();
+            foreach (string query in listItem)
+            {
+                var searchResult = await _memory.SearchAsync(query);
+                var data = new List<RelevantSource>();
+                if (!searchResult.NoResult)
+                {
+                    BegRerankConfig.LoadModel(_bgeOptions.Value.PythonDllPath, _bgeOptions.Value.ReRankerModel);
+                    data.AddRange(
+                        searchResult.Results.SelectMany(item => item.Partitions.Select(part => new RelevantSource()
+                        {
+                            SourceName = item.SourceName,
+                            Text = part.Text,
+                            Relevance = part.Relevance,
+                            RerankScore = BegRerankConfig.Rerank(new List<string>() { query, part.Text })
+                        })).ToList()
+                    );
+                }
+                listResults.Add(data.OrderByDescending(p => p.RerankScore).ToList());
+            }
+
+            return listResults;
+        }
+
+        private async Task<MemoryServerless> SettingKernelMemoryForSirio(MemoryServerless _memory)
+        { 
+            return _memory;
+        }
+
+        
     }
 }

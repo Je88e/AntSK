@@ -69,7 +69,7 @@
             <param name="value"></param>
             <returns></returns>
         </member>
-        <member name="M:AntSK.Domain.ExeclHelper.ExcelToDataTable(System.String,System.Boolean)">
+        <member name="M:AntSK.Domain.ExcelHelper.ExcelToDataTable(System.String,System.Boolean)">
             <summary>
             将excel导入到datatable
             </summary>
@@ -77,7 +77,7 @@
             <param name="isColumnName">第一行是否是列名</param>
             <returns>返回datatable</returns>
         </member>
-        <member name="M:AntSK.Domain.ExeclHelper.ExcelToDataTable(System.IO.Stream,System.Boolean)">
+        <member name="M:AntSK.Domain.ExcelHelper.ExcelToDataTable(System.IO.Stream,System.Boolean)">
             <summary>
             将excel导入到datatable
             </summary>
@@ -85,7 +85,7 @@
             <param name="isColumnName">第一行是否是列名</param>
             <returns></returns>
         </member>
-        <member name="M:AntSK.Domain.ExeclHelper.ExcelToList``1(System.IO.Stream)">
+        <member name="M:AntSK.Domain.ExcelHelper.ExcelToList``1(System.IO.Stream)">
             <summary>
             excel转list
             </summary>
@@ -93,7 +93,7 @@
             <param name="stream"></param>
             <returns></returns>
         </member>
-        <member name="M:AntSK.Domain.ExeclHelper.ExcelToList``1(System.IO.Stream,System.String)">
+        <member name="M:AntSK.Domain.ExcelHelper.ExcelToList``1(System.IO.Stream,System.String)">
             <summary>
             excel转list-根据sheetName得到List
             </summary>
@@ -102,7 +102,7 @@
             <param name="sheetName"></param>
             <returns></returns>
         </member>
-        <member name="M:AntSK.Domain.ExeclHelper.ListToExcel``1(``0[],System.String)">
+        <member name="M:AntSK.Domain.ExcelHelper.ListToExcel``1(``0[],System.String)">
             <summary>
             List导出excel 二进制流
             </summary>
@@ -111,7 +111,7 @@
             <param name="sheetName">sheetname 可不填，默认Sheet0</param>
             <returns></returns>
         </member>
-        <member name="M:AntSK.Domain.ExeclHelper.DataTableToExcel(System.Data.DataTable,System.String,System.String)">
+        <member name="M:AntSK.Domain.ExcelHelper.DataTableToExcel(System.Data.DataTable,System.String,System.String)">
             <summary>
              Dt导出excel 二进制流
             </summary>
@@ -119,7 +119,7 @@
             <param name="strFile">strFile</param>
             <returns></returns>
         </member>
-        <member name="M:AntSK.Domain.ExeclHelper.ListWriteExcel``1(``0[],System.String,System.String)">
+        <member name="M:AntSK.Domain.ExcelHelper.ListWriteExcel``1(``0[],System.String,System.String)">
             <summary>
             List写入excel
             </summary>
@@ -129,7 +129,7 @@
             <param name="sheetName"></param>
             <returns></returns>
         </member>
-        <member name="M:AntSK.Domain.ExeclHelper.DataTableWriteExcel(System.Data.DataTable,System.String,System.String)">
+        <member name="M:AntSK.Domain.ExcelHelper.DataTableWriteExcel(System.Data.DataTable,System.String,System.String)">
             <summary>
             dt写入excel
             </summary>
@@ -137,7 +137,7 @@
             <param name="strFile">路径</param>
             <returns></returns>
         </member>
-        <member name="M:AntSK.Domain.ExeclHelper.SetCellDropdownList(NPOI.SS.UserModel.IWorkbook,NPOI.SS.UserModel.ISheet,System.Collections.Generic.List{System.String},System.String,System.Int32,System.Int32,System.Int32)">
+        <member name="M:AntSK.Domain.ExcelHelper.SetCellDropdownList(NPOI.SS.UserModel.IWorkbook,NPOI.SS.UserModel.ISheet,System.Collections.Generic.List{System.String},System.String,System.Int32,System.Int32,System.Int32)">
             <summary>
             设置单元格下拉框(除去标题行)
             </summary>

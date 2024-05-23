@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace AntSK.Domain
 {
-    public class ExeclHelper
+    public class ExcelHelper
     {
         /// <summary>
         /// 将excel导入到datatable

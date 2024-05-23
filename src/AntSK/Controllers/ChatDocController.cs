@@ -67,7 +67,6 @@ namespace AntSK.Controllers
             }
         }
 
-
         [HttpGet]
         public async Task<IActionResult> StartSummary(string fileId)
         {
