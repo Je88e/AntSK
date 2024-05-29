@@ -161,12 +161,12 @@ namespace AntSK.Domain.Common.DependencyInjection
                 var filePath = Path.Combine(hostingEnvironment.WebRootPath, "files", fileName);
                 using FileStream fileStream = System.IO.File.OpenRead(filePath);
 
-                var dataTable = ExcelHelper.ExcelToDataTable(fileStream, true);
+                var dataTable = ExcelHelper.ExcelToDataTable(fileStream, true).Select().Select(r=> r["TESTNO"] as string).Distinct().ToList();
 
                 StringBuilder text = new StringBuilder();
-                foreach (DataRow item in dataTable.Rows)
+                foreach (var item in dataTable)
                 {
-                    text.AppendLine(@$"{item["TESTNO"].ToString()}{KmsConstantcs.KMExcelSplit}");
+                    text.AppendLine(@$"{item}{KmsConstantcs.KMExcelSplit}");
                 }
                 var importText = text.ToString();
                 _memory.ImportTextAsync(importText,

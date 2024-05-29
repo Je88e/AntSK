@@ -127,7 +127,7 @@ namespace AntSK.Controllers
         public async Task<List<RelevantSource>> SimilaritySearchSirio([FromForm] string query)
         {
 
-            var _memory = await SettingKernelMemoryForSirio(this._siriomemory);
+            var _memory = this._siriomemory;
 
             var searchResult = await _memory.SearchAsync(query);
             var data = new List<RelevantSource>();
@@ -143,11 +143,6 @@ namespace AntSK.Controllers
                         RerankScore = BegRerankConfig.Rerank(new List<string>() { query, part.Text })
                     })).ToList()
                 );
-
-                foreach (var guid in searchResult.Results.Select(c => c.DocumentId).Distinct())
-                {
-                    await _memory.DeleteDocumentAsync(guid);
-                }
             }
 
             return data.OrderByDescending(p => p.RerankScore).ToList();
@@ -161,20 +156,20 @@ namespace AntSK.Controllers
             var _memory = _siriomemory;
 
             var listResults = new List<List<RelevantSource>>();
+            BegRerankConfig.LoadModel(_bgeOptions.Value.PythonDllPath, _bgeOptions.Value.ReRankerModel);
             foreach (string query in listItem)
             {
                 var searchResult = await _memory.SearchAsync(query);
                 var data = new List<RelevantSource>();
                 if (!searchResult.NoResult)
                 {
-                    BegRerankConfig.LoadModel(_bgeOptions.Value.PythonDllPath, _bgeOptions.Value.ReRankerModel);
                     data.AddRange(
                         searchResult.Results.SelectMany(item => item.Partitions.Select(part => new RelevantSource()
                         {
                             SourceName = item.SourceName,
                             Text = part.Text,
                             Relevance = part.Relevance,
-                            RerankScore = BegRerankConfig.Rerank(new List<string>() { query, part.Text })
+                            //RerankScore = BegRerankConfig.Rerank(new List<string>() { query, part.Text })
                         })).ToList()
                     );
                 }
