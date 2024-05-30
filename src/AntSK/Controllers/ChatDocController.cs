@@ -1,6 +1,9 @@
-﻿using BifrostiC.SparkDesk.ChatDoc.Models.ChatDoc;
+﻿using AntSK.Domain.Common.Pdf;
+using BifrostiC.SparkDesk.ChatDoc.Models.ChatDoc;
 using BifrostiC.SparkDesk.ChatDoc.Services.ChatDoc;
 using Microsoft.AspNetCore.Mvc;
+using System.IO;
+using System.Net.Mime;
 
 namespace AntSK.Controllers
 {
@@ -9,12 +12,14 @@ namespace AntSK.Controllers
     public class ChatDocController : ControllerBase
     {
         private readonly ILogger<ChatDocController> _logger;
-        private readonly IChatDocService _chatDocService;
+        private readonly IChatDocService _chatDocService; 
+        private readonly IWebHostEnvironment _hostingEnvironment;
 
-        public ChatDocController(ILogger<ChatDocController> logger, IChatDocService chatDocService)
+        public ChatDocController(ILogger<ChatDocController> logger, IChatDocService chatDocService, IWebHostEnvironment hostingEnvironment)
         {
             _logger = logger;
             _chatDocService = chatDocService;
+            _hostingEnvironment = hostingEnvironment;
         }
 
         [HttpPost]
@@ -26,10 +31,21 @@ namespace AntSK.Controllers
             //if (!string.IsNullOrEmpty(callbackUrl))
             //    content.Add(new StringContent(callbackUrl), "callbackUrl");
 
+            var result = new UploadResponse();
+
             using MemoryStream memoryStream = new MemoryStream();
             await file.CopyToAsync(memoryStream);
 
-            var result = await _chatDocService.FileUpload(memoryStream, file.FileName);
+            if (file.ContentType.Equals("image/jpeg",StringComparison.OrdinalIgnoreCase))
+            {
+                //var pdfStream = PdfHelper.ConvertImageToPdf(await SaveToLocal(file));
+                var pdfStream = PdfHelper.ConvertImageToPdf(memoryStream.ToArray());
+                result = await _chatDocService.FileUpload(pdfStream, $"{Path.GetFileName(file.FileName)}.pdf");
+            }
+            else
+            { 
+                result = await _chatDocService.FileUpload(memoryStream, file.FileName);
+            }
 
             if (result.IsSuccess)
             {
@@ -40,6 +56,28 @@ namespace AntSK.Controllers
                 _logger.LogError($"Failed to upload file: {result.StatusCode} - {result.ReasonPhrase}");
                 return StatusCode(result.StatusCode, result.ReasonPhrase);
             }
+        }
+
+        private async Task<string> SaveToLocal(IFormFile file)
+        {
+            var uploadsFolderPath = Path.Combine(_hostingEnvironment.WebRootPath, "files");
+            // 如果路径不存在，则创建一个新的目录
+            if (!Directory.Exists(uploadsFolderPath))
+            {
+                Directory.CreateDirectory(uploadsFolderPath);
+            }
+
+            string extension = Path.GetExtension(file.FileName);
+            string fileid = Guid.NewGuid().ToString();
+            // 组合目标路径
+            var uploads = Path.Combine(uploadsFolderPath, fileid + extension);
+
+            // 保存文件至目标路径
+            using var fileStream = System.IO.File.Create(uploads);
+            using var uploadStream = file.OpenReadStream();
+            await uploadStream.CopyToAsync(fileStream);
+
+            return uploads;
         }
 
         [HttpPost]

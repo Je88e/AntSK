@@ -41,7 +41,8 @@
     <PackageReference Include="LLamaSharp.Backend.Cuda12" Version="$(LLamaSharpVersion)" />
     <PackageReference Include="LLamaSharp.kernel-memory" Version="$(LLamaSharpVersion)" />
     <PackageReference Include="LLamaSharp.semantic-kernel" Version="$(LLamaSharpVersion)" />
-    
+
+	<PackageReference Include="iTextSharp" Version="5.5.13.3" />
     
   </ItemGroup>
   <ItemGroup>

@@ -32,7 +32,7 @@ namespace AntSK.plugins.Functions
         [return: Description("用户工时列表信息")]
         public string GetWorkingHours([Description("用户名")] string userName)
         {
-            using var httpClient = httpClientFactory.CreateClient("JCustom");
+            using var httpClient = httpClientFactory.CreateClient();
             var xml = httpClient.GetStringAsync($"http://172.16.1.160:16080/STARLIMS.PHARMA/YunJiRobot.GetWorkingHours.lims?STARLIMSUser=ZHOUZJ&STARLIMSPass=Lims@123&name={userName}").Result;
             XDocument xdoc = XDocument.Parse(xml);
             var dataset = xdoc.Element("DataSet"); 

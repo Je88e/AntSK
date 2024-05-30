@@ -13,9 +13,7 @@ namespace AntSK.Domain.Domain.Other.Bge
     {
         public static dynamic model { get; set; }
 
-        static object lockobj = new object();
-
-
+        static object lockobj = new object(); 
 
         /// <summary>
         /// 模型写死
