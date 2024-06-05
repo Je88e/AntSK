@@ -84,7 +84,7 @@ builder.Services.AddBackgroundTaskBroker().AddHandler<ImportKMSTaskReq, BackGrou
     }
 }
 
-builder.Services.AddJesseConfiguration(builder.Configuration);
+builder.Services.AddSinoConfiguration(builder.Configuration);
 
 var app = builder.Build();
 

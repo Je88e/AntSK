@@ -1,34 +1,29 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Configuration;
-using BifrostiC.SparkDesk.ChatDoc.Common.Dependency;
-using Microsoft.KernelMemory;
+﻿using AntSK.Domain.Common.Embedding;
 using AntSK.Domain.Domain.Model.Constant;
-using AntSK.Domain.Repositories;
-using Microsoft.SemanticKernel.Memory;
-using AntSK.Domain.Common.Embedding;
-using Microsoft.KernelMemory.Postgres;
-using Microsoft.KernelMemory.FileSystem.DevTools;
-using Microsoft.KernelMemory.MemoryStorage.DevTools;
-using Microsoft.KernelMemory.Handlers;
-using OpenCvSharp.ML;
-using LLamaSharp.KernelMemory;
-using BifrostiC.SparkDesk.ChatDoc.Models.Options;
-using AntSK.Domain.Options;
-using SqlSugar;
-using Microsoft.Extensions.Options;
 using AntSK.Domain.Domain.Other;
+using AntSK.Domain.Options;
+using BifrostiC.DashScope.OSSUpload.Common.Dependency;
+using BifrostiC.SparkDesk.ChatDoc.Common.Dependency;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using Microsoft.KernelMemory;
+using Microsoft.KernelMemory.FileSystem.DevTools;
+using Microsoft.KernelMemory.Handlers;
+using Microsoft.KernelMemory.MemoryStorage.DevTools;
+using SqlSugar;
 using System.Data;
 using System.Text;
-using Microsoft.AspNetCore.Hosting;
 
 namespace AntSK.Domain.Common.DependencyInjection
 {
     public static class SinoExtensions
     {
-        public static IServiceCollection AddJesseConfiguration(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddSinoConfiguration(this IServiceCollection services, IConfiguration configuration)
         { 
             services.AddChatDoc(configuration);
+            services.AddDashScopeOSSUpload(configuration);
 
             services.Configure<LocalBgeConfigOptions>(configuration.GetSection("LocalBgeConfig"));
 

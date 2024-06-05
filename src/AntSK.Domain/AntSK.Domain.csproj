@@ -10,9 +10,10 @@
   <ItemGroup>
     <PackageReference Include="AntDesign.Charts" Version="0.5.1" />
     <PackageReference Include="AntDesign.ProLayout" Version="0.18.2" />
-    <PackageReference Include="BifrostiC.SparkDesk.ChatDoc" Version="1.0.0" />
     <PackageReference Include="BlazorComponents.Terminal" Version="0.6.0" />
     <PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
+    <PackageReference Include="PdfPig" Version="0.1.8" />
+    <PackageReference Include="PDFsharp" Version="6.1.0" />
   
     <PackageReference Include="pythonnet" Version="3.0.3" />
     
@@ -41,11 +42,10 @@
     <PackageReference Include="LLamaSharp.Backend.Cuda12" Version="$(LLamaSharpVersion)" />
     <PackageReference Include="LLamaSharp.kernel-memory" Version="$(LLamaSharpVersion)" />
     <PackageReference Include="LLamaSharp.semantic-kernel" Version="$(LLamaSharpVersion)" />
-
-	<PackageReference Include="iTextSharp" Version="5.5.13.3" />
     
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AntSk.BifrostiC\AntSk.BifrostiC.csproj" />
     <ProjectReference Include="..\AntSK.LLamaFactory\AntSK.LLamaFactory.csproj" />
     <ProjectReference Include="..\AntSk.LLM\AntSK.LLM.csproj" />
     <ProjectReference Include="..\AntSK.OCR\AntSK.OCR.csproj" />

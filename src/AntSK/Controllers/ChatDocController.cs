@@ -1,9 +1,7 @@
 ﻿using AntSK.Domain.Common.Pdf;
-using BifrostiC.SparkDesk.ChatDoc.Models.ChatDoc;
+using BifrostiC.SparkDesk.ChatDoc.Models;
 using BifrostiC.SparkDesk.ChatDoc.Services.ChatDoc;
 using Microsoft.AspNetCore.Mvc;
-using System.IO;
-using System.Net.Mime;
 
 namespace AntSK.Controllers
 {
@@ -39,7 +37,7 @@ namespace AntSK.Controllers
             if (file.ContentType.Equals("image/jpeg",StringComparison.OrdinalIgnoreCase))
             {
                 //var pdfStream = PdfHelper.ConvertImageToPdf(await SaveToLocal(file));
-                var pdfStream = PdfHelper.ConvertImageToPdf(memoryStream.ToArray());
+                var pdfStream = PdfHelper.ConvertImageToPdf(memoryStream);
                 result = await _chatDocService.FileUpload(pdfStream, $"{Path.GetFileName(file.FileName)}.pdf");
             }
             else

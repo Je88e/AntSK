@@ -21,4 +21,7 @@
     <PackageReference Include="Sdcb.PaddleOCR.Models.Shared" Version="2.7.0.1" />
     
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AntSk.BifrostiC\AntSk.BifrostiC.csproj" />
+  </ItemGroup>
 </Project>
