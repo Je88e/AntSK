@@ -33,13 +33,16 @@ namespace AntSK.Services.OpenApi
             Regex regex = new Regex(@"Bearer (.*)");
             Match match = regex.Match(headerValue);
             string token = match.Groups[1].Value;
+            string questions;
+            ChatHistory history;
             Apps app = _apps_Repositories.GetFirst(p => p.SecretKey == token);
             if (app.IsNotNull())
             {
-                (string questions,ChatHistory history) = await GetHistory(model);
+
                 switch (app.Type)
                 {
                     case "chat":
+                        (questions, history) = await GetHistory(model,app.Prompt);
                         //普通会话
                         history.AddUserMessage(questions);
                         if (model.stream)
@@ -49,9 +52,6 @@ namespace AntSK.Services.OpenApi
                             result1.choices = new List<StreamChoicesModel>()
                                 { new StreamChoicesModel() { delta = new OpenAIMessage() { role = "assistant" } } };
                             await SendChatStream(HttpContext, result1, app,history);
-                            HttpContext.Response.ContentType = "application/json";
-                            await HttpContext.Response.WriteAsync(JsonConvert.SerializeObject(result1));
-                            await HttpContext.Response.CompleteAsync();
                             return;
                         }
                         else
@@ -67,6 +67,7 @@ namespace AntSK.Services.OpenApi
                         }
                         break;
                     case "kms":
+                        (questions, history) = await GetHistory(model,"");
                         //知识库问答
                         if (model.stream)
                         {
@@ -75,9 +76,6 @@ namespace AntSK.Services.OpenApi
                             result3.choices = new List<StreamChoicesModel>()
                                 { new StreamChoicesModel() { delta = new OpenAIMessage() { role = "assistant" } } };
                             await SendKmsStream(HttpContext, result3, app, questions,history);
-                            HttpContext.Response.ContentType = "application/json";
-                            await HttpContext.Response.WriteAsync(JsonConvert.SerializeObject(result3));
-                            await HttpContext.Response.CompleteAsync();
                         }
                         else
                         {
@@ -228,11 +226,15 @@ namespace AntSK.Services.OpenApi
         /// <param name="app"></param>
         /// <param name="model"></param>
         /// <returns></returns>
-        private async Task<(string,ChatHistory)> GetHistory(OpenAIModel model)
+        private async Task<(string,ChatHistory)> GetHistory(OpenAIModel model,string systemPrompt)
         {
             ChatHistory history = new ChatHistory();
+            if (!string.IsNullOrEmpty(systemPrompt))
+            {
+                history = new ChatHistory(systemPrompt);
+            }
             string questions = model.messages[model.messages.Count - 1].content;
-            for (int i = 0; i < model.messages.Count() - 1; i++)
+            for (int i = 0; i < model.messages.Count()-1 ; i++)
             {
                 var item = model.messages[i];
                 if (item.role.ComparisonIgnoreCase("user"))
