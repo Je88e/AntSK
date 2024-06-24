@@ -1,29 +1,22 @@
-﻿using AntSK.LLM.SparkDesk;
-using AntSK.Domain.Common.DependencyInjection;
+﻿using AntSK.Domain.Common.DependencyInjection;
 using AntSK.Domain.Domain.Interface;
+using AntSK.Domain.Domain.Model.Enum;
 using AntSK.Domain.Domain.Other;
 using AntSK.Domain.Repositories;
 using AntSK.Domain.Utils;
+using AntSK.LLM.Mock;
+using AntSK.LLM.SparkDesk;
 using LLama;
+using LLamaSharp.SemanticKernel.ChatCompletion;
 using LLamaSharp.SemanticKernel.TextCompletion;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Plugins.Core;
 using Microsoft.SemanticKernel.TextGeneration;
 using RestSharp;
-using System;
 using ServiceLifetime = AntSK.Domain.Common.DependencyInjection.ServiceLifetime;
-using AntSK.LLM.Mock;
-using AntSK.Domain.Domain.Model.Enum;
-using AntSK.LLM.LLamaFactory;
-using System.Reflection;
-using DocumentFormat.OpenXml.Drawing;
-using Microsoft.KernelMemory;
-using OpenCvSharp.ML;
-using LLamaSharp.SemanticKernel.ChatCompletion;
-using Microsoft.SemanticKernel.ChatCompletion;
-using Amazon.Runtime.Internal.Util;
-using Microsoft.Extensions.Logging;
 
 namespace AntSK.Domain.Domain.Service
 {

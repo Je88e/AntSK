@@ -50,7 +50,10 @@
     <PackageReference Include="Serilog.Sinks.OpenTelemetry" Version="3.0.0-dev-00298" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AntSk.BifrostiC\AntSk.BifrostiC.csproj" />
+    <ProjectReference Include="..\AntSK.LLamaFactory\AntSK.LLamaFactory.csproj" />
     <ProjectReference Include="..\AntSk.LLM\AntSK.LLM.csproj" />
+    <ProjectReference Include="..\AntSK.OCR\AntSK.OCR.csproj" />
     <ProjectReference Include="..\MiddleWare\AntSK.BackgroundTask\AntSK.BackgroundTask.csproj" />
   </ItemGroup>
 

@@ -24,13 +24,13 @@ namespace AntSK.OCR
 
             if(!uploadResponse.Success)
             {
-                return "";
+                return string.Empty;
             }
 
             var ossEndPoint = uploadResponse.OssEndpoint;
 
 
-
+            return default;
         }
     }
 }
