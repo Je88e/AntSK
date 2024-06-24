@@ -86,7 +86,7 @@ builder.Services.AddBackgroundTaskBroker().AddHandler<ImportKMSTaskReq, BackGrou
     if (LLamaSharpOption.RunType.ToUpper() == "CPU")
     {
         NativeLibraryConfig
-           .Instance
+           .All
            .WithCuda(false)
            .WithLogCallback((level, message) => {
                logger.LogInformation($"[llama {level}]: {message.TrimEnd('\n')}");
@@ -95,12 +95,11 @@ builder.Services.AddBackgroundTaskBroker().AddHandler<ImportKMSTaskReq, BackGrou
     else if (LLamaSharpOption.RunType.ToUpper() == "GPU")
     {
         NativeLibraryConfig
-        .Instance
+        .All
         .WithCuda(true)
         .WithLogCallback((level, message) => {
             logger.LogInformation($"[llama {level}]: {message.TrimEnd('\n')}");
-         })
-        .WithAvx(NativeLibraryConfig.AvxLevel.Avx);
+         });
     }
 
 

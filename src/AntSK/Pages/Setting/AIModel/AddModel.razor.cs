@@ -249,6 +249,7 @@ namespace AntSK.Pages.Setting.AIModel
             _logModalVisible = true;
             llamaFactoryDic.Value = "true";
             _IDics_Repositories.Update(llamaFactoryDic);
+            _ILLamaFactoryService.LogMessageReceived -= CmdLogHandler;
             _ILLamaFactoryService.LogMessageReceived += CmdLogHandler;
             _ILLamaFactoryService.StartLLamaFactory(_aiModel.ModelName, "default");
         }
@@ -268,6 +269,7 @@ namespace AntSK.Pages.Setting.AIModel
             if (result == ConfirmResult.Yes)
             {
                 _logModalVisible = true;
+                _ILLamaFactoryService.LogMessageReceived -= CmdLogHandler;
                 _ILLamaFactoryService.LogMessageReceived += CmdLogHandler;
                 _ILLamaFactoryService.PipInstall();
             }
@@ -355,7 +357,10 @@ namespace AntSK.Pages.Setting.AIModel
         private void AITypeChange(AIType aiType) 
         {
             switch (aiType)
-            { 
+            {
+                case AIType.OpenAI:
+                    _aiModel.EndPoint = "https://api.antsk.cn/";
+                    break;
                 case AIType.LLamaFactory:
                     _aiModel.EndPoint = "http://localhost:8000/";
                     _aiModel.AIModelType=AIModelType.Chat;
