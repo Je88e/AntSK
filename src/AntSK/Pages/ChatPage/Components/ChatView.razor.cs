@@ -19,6 +19,7 @@ using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Text;
 
 namespace AntSK.Pages.ChatPage.Components
 {
@@ -82,6 +83,7 @@ namespace AntSK.Pages.ChatPage.Components
             var userSession = userSessionStorageResult.Success ? userSessionStorageResult.Value : null;
             _userName = userSession?.UserName;
             await GetMsgList();
+            await MarkDown();
         }
         /// <summary>
         /// 获取聊天记录列表
@@ -323,15 +325,16 @@ namespace AntSK.Pages.ChatPage.Components
             };
             MessageList.Add(info);
             var chatResult = _chatService.SendKmsByAppAsync(app, questions, history, filePath, _relevantSources);
+            StringBuilder rawContent = new StringBuilder();
             await foreach (var content in chatResult)
             {
-
-                info.Context += content.ConvertToString();
-                await Task.Delay(50);
+                rawContent.Append(content.ConvertToString());
+                info.Context = Markdown.ToHtml(rawContent.ToString());
+                await Task.Delay(30);
                 await InvokeAsync(StateHasChanged);
             }
-            //全部处理完后再处理一次Markdown
-            await MarkDown(info);
+            //全部处理完后再处理一次Markdown 处理代码高亮
+            await MarkDown();
         }
 
         /// <summary>
@@ -344,10 +347,12 @@ namespace AntSK.Pages.ChatPage.Components
         {
             Chats info = null;
             var chatResult = _chatService.SendChatByAppAsync(app, history);
+            StringBuilder rawContent = new StringBuilder();
             await foreach (var content in chatResult)
             {
                 if (info == null)
                 {
+                    rawContent.Append(content.ConvertToString());
                     info = new Chats();
                     info.Id = Guid.NewGuid().ToString();
                     info.UserName = _userName;
@@ -359,13 +364,14 @@ namespace AntSK.Pages.ChatPage.Components
                 }
                 else
                 {
-                    info.Context += content.ConvertToString();
-                    await Task.Delay(50);
+                    rawContent.Append(content.ConvertToString());
                 }
+                info.Context = Markdown.ToHtml(rawContent.ToString());
+                await Task.Delay(30);
                 await InvokeAsync(StateHasChanged);
             }
-            //全部处理完后再处理一次Markdown
-            await MarkDown(info);
+            //全部处理完后再处理一次Markdown 处理代码高亮
+            await MarkDown();
         }
 
         /// <summary>
@@ -373,14 +379,8 @@ namespace AntSK.Pages.ChatPage.Components
         /// </summary>
         /// <param name="info"></param>
         /// <returns></returns>
-        private async Task MarkDown(Chats info)
+        private async Task MarkDown()
         {
-            if (info.IsNotNull())
-            {
-                // info!.HtmlAnswers = markdown.Transform(info.HtmlAnswers);
-                info!.Context = Markdown.ToHtml(info.Context);
-
-            }
             await InvokeAsync(StateHasChanged);
             await _JSRuntime.InvokeVoidAsync("Prism.highlightAll");
             await _JSRuntime.ScrollToBottomAsync("scrollDiv");
