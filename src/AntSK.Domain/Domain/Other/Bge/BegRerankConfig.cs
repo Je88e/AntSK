@@ -30,6 +30,7 @@ namespace AntSK.Domain.Domain.Other.Bge
                         Runtime.PythonDLL = pythondllPath;
                     }
                     PythonEngine.Initialize();
+                    PythonEngine.BeginAllowThreads();
                     using var pyGIL = GIL();
                     try
                     {

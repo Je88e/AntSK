@@ -9,7 +9,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="AntDesign.Charts" Version="0.5.2" />
-    <PackageReference Include="AntDesign.ProLayout" Version="0.19.0" />
+    <PackageReference Include="AntDesign.ProLayout" Version="0.19.2" />
     <PackageReference Include="BlazorComponents.Terminal" Version="0.6.0" />
     <PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
   
@@ -20,15 +20,15 @@
     <PackageReference Include="AutoMapper" Version="8.1.0" />
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
     <PackageReference Include="Markdig" Version="0.37.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="SqlSugarCore" Version="5.1.4.159" />
+    <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftVersion)" />
+    <PackageReference Include="SqlSugarCore" Version="5.1.4.160" />
     <PackageReference Include="System.Data.SQLite.Core" Version="1.0.118" />
-    <PackageReference Include="RestSharp" Version="111.2.0" />
+    <PackageReference Include="RestSharp" Version="$(RestSharpVersion)" />
     <PackageReference Include="NPOI" Version="2.7.0" />
-    
-    <PackageReference Include="Microsoft.SemanticKernel" Version="1.14.1" />
-    <PackageReference Include="Microsoft.SemanticKernel.Core" Version="1.14.1" />
-    <PackageReference Include="Microsoft.SemanticKernel.Plugins.Core" Version="1.14.1-alpha" />
+
+    <PackageReference Include="Microsoft.SemanticKernel" Version="$(SKVersion)" />
+    <PackageReference Include="Microsoft.SemanticKernel.Core" Version="$(SKVersion)" />
+    <PackageReference Include="Microsoft.SemanticKernel.Plugins.Core" Version="$(SKVersion)-alpha" />
     <PackageReference Include="Microsoft.KernelMemory.Core" Version="$(KMVersion)" />
     <PackageReference Include="Microsoft.KernelMemory.MemoryDb.Postgres" Version="$(KMVersion)" />
     <PackageReference Include="Microsoft.KernelMemory.MemoryDb.Qdrant" Version="$(KMVersion)" />

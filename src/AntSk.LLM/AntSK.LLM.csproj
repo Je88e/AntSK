@@ -13,9 +13,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.SemanticKernel" Version="1.14.1" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="RestSharp" Version="111.2.0" />
+	<PackageReference Include="Microsoft.SemanticKernel" Version="$(SKVersion)" />
+	<PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftVersion)" />
+	<PackageReference Include="RestSharp" Version="$(RestSharpVersion)" />
     <PackageReference Include="Cnblogs.KernelMemory.AI.DashScope" Version="0.1.0" />
     <PackageReference Include="Cnblogs.SemanticKernel.Connectors.DashScope" Version="0.3.2" />
     <PackageReference Include="Sdcb.SparkDesk" Version="3.0.0" />
@@ -23,6 +23,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="OllamaModelList.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="StableDiffusion\Backend\CPU\stable-diffusion.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -48,7 +51,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="StableDiffusionModelList.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
