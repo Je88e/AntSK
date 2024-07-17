@@ -68,10 +68,19 @@ namespace AntSK.Domain.Domain.Service
                     EmptyAnswer = KmsConstantcs.KmsSearchNull
                 };
             }
-           
+            var memoryBuild = new KernelMemoryBuilder();
+            try
+            {
+                memoryBuild.WithSearchClientConfig(searchClientConfig);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
 
-            var memoryBuild = new KernelMemoryBuilder()
-                  .WithSearchClientConfig(searchClientConfig)
+
+            //var memoryBuild = new KernelMemoryBuilder()
+            //      .WithSearchClientConfig(searchClientConfig)
                   //.WithCustomTextPartitioningOptions(new TextPartitioningOptions
                   //{
                   //    MaxTokensPerLine = app.MaxTokensPerLine,
@@ -317,8 +326,15 @@ namespace AntSK.Domain.Domain.Service
             var memory = GetMemoryByApp(app);
 
             var filters = kmsIdList.Select(kmsId => new MemoryFilter().ByTag(KmsConstantcs.KmsIdTag, kmsId)).ToList();
-
-            var searchResult = await memory.SearchAsync(msg, index: KmsConstantcs.KmsIndex, filters: filters);
+            var searchResult = new SearchResult();
+            try
+            {
+                searchResult = await memory.SearchAsync(msg, index: KmsConstantcs.KmsIndex, filters: filters);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
             if (!searchResult.NoResult)
             {
                 foreach (var item in searchResult.Results)

@@ -1,4 +1,4 @@
-﻿using BifrostiC.DashScope.OSSUpload.Services.OSSUpload;
+﻿using BifrostiC.DashScope.QwenVL.Services;
 using Microsoft.KernelMemory.DataFormats;
 using System;
 using System.Collections.Generic;
@@ -10,27 +10,27 @@ namespace AntSK.OCR
 {
     public class QwenVLOCREngine : IOcrEngine
     {
-        private readonly IOSSUploadService _uploadService;
-        public QwenVLOCREngine(IOSSUploadService uploadService)
-        {
-            _uploadService = uploadService;
-        }
-
-        public async Task<string> ExtractTextFromImageAsync(Stream imageContent, CancellationToken cancellationToken = default)
-        {
-            //获取上传凭证
-            var policyResponse = await _uploadService.GetUploadPolicyAsync("qwen-vl-plus");
-            var uploadResponse = await _uploadService.FileUpload(policyResponse, imageContent, $"{Guid.NewGuid().ToString()}.jpg", "image/jpeg");
-
-            if(!uploadResponse.Success)
+            private readonly IOSSUploadService _uploadService;
+            public QwenVLOCREngine(IOSSUploadService uploadService)
             {
-                return string.Empty;
+                _uploadService = uploadService;
             }
 
-            var ossEndPoint = uploadResponse.OssEndpoint;
+            public async Task<string> ExtractTextFromImageAsync(Stream imageContent, CancellationToken cancellationToken = default)
+            {
+                //获取上传凭证
+                var policyResponse = await _uploadService.GetUploadPolicyAsync("qwen-vl-plus");
+                var uploadResponse = await _uploadService.FileUpload(policyResponse, imageContent, $"{Guid.NewGuid().ToString()}.jpg", "image/jpeg");
+
+                if(!uploadResponse.Success)
+                {
+                    return string.Empty;
+                }
+
+                var ossEndPoint = uploadResponse.OssEndpoint;
 
 
-            return default;
-        }
+                return default;
+            }
     }
 }

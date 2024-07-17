@@ -1,6 +1,6 @@
 ﻿using AntSK.Domain.Common.Pdf;
-using BifrostiC.SparkDesk.ChatDoc.Models;
-using BifrostiC.SparkDesk.ChatDoc.Services.ChatDoc;
+using BifrostiC.SparkDesk.ChatDoc.Models.v1;
+using BifrostiC.SparkDesk.ChatDoc.Services.ChatDoc.v1;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AntSK.Controllers
@@ -26,56 +26,36 @@ namespace AntSK.Controllers
             if (file == null)
                 return BadRequest("Either file or url is required");
 
-            //if (!string.IsNullOrEmpty(callbackUrl))
-            //    content.Add(new StringContent(callbackUrl), "callbackUrl");
+            using var memoryStream = new MemoryStream();
+            await using var fileStream = file.OpenReadStream();
+            string fileName;
+            bool useOCR = false;
 
-            var result = new UploadResponse();
-
-            using MemoryStream memoryStream = new MemoryStream();
-            await file.CopyToAsync(memoryStream);
-
-            if (file.ContentType.Equals("image/jpeg",StringComparison.OrdinalIgnoreCase))
+            if (FileTypeIsImage(file.ContentType))
             {
-                //var pdfStream = PdfHelper.ConvertImageToPdf(await SaveToLocal(file));
-                var pdfStream = PdfHelper.ConvertImageToPdf(memoryStream);
-                result = await _chatDocService.FileUpload(pdfStream, $"{Path.GetFileName(file.FileName)}.pdf");
+                using var pdfStream = PdfHelper.ConvertImageToPdf(fileStream);
+                await pdfStream.CopyToAsync(memoryStream);
+                useOCR = true;
+                fileName = $"{Guid.NewGuid().ToString()}.pdf";
             }
             else
-            { 
-                result = await _chatDocService.FileUpload(memoryStream, file.FileName);
+            {
+                fileName = file.FileName;
+                await fileStream.CopyToAsync(memoryStream);
             }
 
-            if (result.IsSuccess)
+            memoryStream.Position = 0;
+            var result = await _chatDocService.FileUpload(memoryStream, fileName, useOCR);
+
+            if (result.IsSuccessStatusCode)
             {
                 return Ok(result);
             }
             else
             {
-                _logger.LogError($"Failed to upload file: {result.StatusCode} - {result.ReasonPhrase}");
-                return StatusCode(result.StatusCode, result.ReasonPhrase);
+                _logger.LogError($"Failed to upload file: {result.StatusCode} - {result.Message}");
+                return StatusCode((int)result.StatusCode, result.Message);
             }
-        }
-
-        private async Task<string> SaveToLocal(IFormFile file)
-        {
-            var uploadsFolderPath = Path.Combine(_hostingEnvironment.WebRootPath, "files");
-            // 如果路径不存在，则创建一个新的目录
-            if (!Directory.Exists(uploadsFolderPath))
-            {
-                Directory.CreateDirectory(uploadsFolderPath);
-            }
-
-            string extension = Path.GetExtension(file.FileName);
-            string fileid = Guid.NewGuid().ToString();
-            // 组合目标路径
-            var uploads = Path.Combine(uploadsFolderPath, fileid + extension);
-
-            // 保存文件至目标路径
-            using var fileStream = System.IO.File.Create(uploads);
-            using var uploadStream = file.OpenReadStream();
-            await uploadStream.CopyToAsync(fileStream);
-
-            return uploads;
         }
 
         [HttpPost]
@@ -90,16 +70,16 @@ namespace AntSK.Controllers
             //if (!string.IsNullOrEmpty(callbackUrl))
             //    content.Add(new StringContent(callbackUrl), "callbackUrl");
 
-            var result = await _chatDocService.FileUpload(url, fileName);
+            var result = await _chatDocService.FileUpload(url, fileName, false);
 
-            if (result.IsSuccess)
+            if (result.IsSuccessStatusCode)
             {
                 return Ok(result);
             }
             else
             {
-                _logger.LogError($"Failed to upload file: {result.StatusCode} - {result.ReasonPhrase}");
-                return StatusCode(result.StatusCode, result.ReasonPhrase);
+                _logger.LogError($"Failed to upload file: {result.StatusCode} - {result.Message}");
+                return StatusCode((int)result.StatusCode, result.Message);
             }
         }
 
@@ -111,14 +91,14 @@ namespace AntSK.Controllers
 
             var result = await _chatDocService.StartSummary(fileId);
 
-            if (result.IsSuccess)
+            if (result.IsSuccessStatusCode)
             {
                 return Ok(result);
             }
             else
             {
-                _logger.LogError($"Failed to start summary: {result.StatusCode} - {result.ReasonPhrase}");
-                return StatusCode(result.StatusCode, result.ReasonPhrase);
+                _logger.LogError($"Failed to start summary: {result.StatusCode} - {result.Message}");
+                return StatusCode((int)result.StatusCode, result.Message);
             }
         }
 
@@ -128,16 +108,16 @@ namespace AntSK.Controllers
             if (string.IsNullOrEmpty(fileId))
                 return BadRequest("fileId is required");
 
-            var result = await _chatDocService.FileSummary(fileId);
+            var result = await _chatDocService.GetSummary(fileId);
 
-            if (result.IsSuccess)
+            if (result.IsSuccessStatusCode)
             {
                 return Ok(result);
             }
             else
             {
-                _logger.LogError($"Failed to get file summary: {result.StatusCode} - {result.ReasonPhrase}");
-                return StatusCode(result.StatusCode, result.ReasonPhrase);
+                _logger.LogError($"Failed to get file summary: {result.StatusCode} - {result.Message}");
+                return StatusCode((int)result.StatusCode, result.Message);
             }
         }
 
@@ -172,5 +152,33 @@ namespace AntSK.Controllers
             return Ok(result);
         }
 
+        private async Task<string> SaveToLocal(IFormFile file)
+        {
+            var uploadsFolderPath = Path.Combine(_hostingEnvironment.WebRootPath, "files");
+            // 如果路径不存在，则创建一个新的目录
+            if (!Directory.Exists(uploadsFolderPath))
+            {
+                Directory.CreateDirectory(uploadsFolderPath);
+            }
+
+            string extension = Path.GetExtension(file.FileName);
+            string fileid = Guid.NewGuid().ToString();
+            // 组合目标路径
+            var uploads = Path.Combine(uploadsFolderPath, fileid + extension);
+
+            // 保存文件至目标路径
+            using var fileStream = System.IO.File.Create(uploads);
+            using var uploadStream = file.OpenReadStream();
+            await uploadStream.CopyToAsync(fileStream);
+
+            return uploads;
+        }
+
+        private bool FileTypeIsImage(string fileType)
+        {
+            List<string> listImgFileType = ["image/jpeg", "image/png"];
+
+            return listImgFileType.Contains(fileType);
+        }
     }
 }

@@ -2,7 +2,7 @@
 using AntSK.Domain.Domain.Model.Constant;
 using AntSK.Domain.Domain.Other;
 using AntSK.Domain.Options;
-using BifrostiC.DashScope.OSSUpload.Common.Dependency;
+using BifrostiC.DashScope.QwenVL.Common.Dependency;
 using BifrostiC.SparkDesk.ChatDoc.Common.Dependency;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -23,7 +23,7 @@ namespace AntSK.Domain.Common.DependencyInjection
         public static IServiceCollection AddSinoConfiguration(this IServiceCollection services, IConfiguration configuration)
         { 
             services.AddChatDoc(configuration);
-            services.AddDashScopeOSSUpload(configuration);
+            services.AddDashScopeQwenVLChat(configuration);
 
             services.Configure<LocalBgeConfigOptions>(configuration.GetSection("LocalBgeConfig"));
 
