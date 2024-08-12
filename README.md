@@ -42,6 +42,8 @@ AntSK is suitable for various business scenarios, such as:
 [document](http://antsk.cn/)
 
 [demo](https://demo.antsk.cn/)
+and
+[demo1](https://antsk.ai-dotnet.com/)
 
 ```
 Default account: test
@@ -84,7 +86,8 @@ version: '3.8'
 services:
   antsk:
     container_name: antsk
-    image: registry.cn-hangzhou.aliyuncs.com/AIDotNet/antsk:v0.1.5ports:
+    image: registry.cn-hangzhou.aliyuncs.com/AIDotNet/antsk:v0.4.5
+    ports:
       - 5000:5000
     networks:
       - antsk
