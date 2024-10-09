@@ -13,9 +13,6 @@ namespace AntSK.Domain.Domain.Model.Enum
         [Display(Name = "Azure Open AI")]
         AzureOpenAI = 2,
 
-        [Display(Name = "LLama本地模型")]
-        LLamaSharp = 3,
-
         [Display(Name = "星火大模型")]
         SparkDesk = 4,
 
@@ -28,11 +25,11 @@ namespace AntSK.Domain.Domain.Model.Enum
         BgeEmbedding = 7,
         [Display(Name = "Bge Rerank")]
         BgeRerank = 8,
-        [Display(Name = "StableDiffusion")]
-        StableDiffusion = 9,
 
         [Display(Name = "Ollama")]
         Ollama = 10,
+        [Display(Name = "OllamaEmbedding")]
+        OllamaEmbedding = 11,
         [Display(Name = "模拟输出")]
         Mock = 100,
 
@@ -45,7 +42,6 @@ namespace AntSK.Domain.Domain.Model.Enum
     {
         Chat = 1,
         Embedding = 2,
-        Image=3,
         Rerank=4
     }
 }

@@ -25,7 +25,7 @@ namespace AntSK.Domain.Repositories
         /// 图标
         /// </summary>
         [Required]
-        public string Icon { get; set; }
+        public string Icon { get; set; } = "windows";
 
         /// <summary>
         /// 类型
@@ -75,6 +75,7 @@ namespace AntSK.Domain.Repositories
         /// <summary>
         /// 知识库ID列表
         /// </summary>
+        [SugarColumn(ColumnDataType = "varchar(1000)")]
         public string? KmsIdList { get; set; }
 
         /// <summary>

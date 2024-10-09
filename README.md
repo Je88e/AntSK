@@ -86,7 +86,7 @@ version: '3.8'
 services:
   antsk:
     container_name: antsk
-    image: registry.cn-hangzhou.aliyuncs.com/AIDotNet/antsk:v0.4.5
+    image: registry.cn-hangzhou.aliyuncs.com/AIDotNet/antsk:v0.5.0
     ports:
       - 5000:5000
     networks:
@@ -103,9 +103,15 @@ networks:
   antsk:
 ```
 Taking this as an example, it means mounting the local D://model folder of Windows into the container /app/model. If so, the model address in your appsettings.json should be configured as
-```
-model/xxx.gguf
-```
+
+[LiteDockerCompose](https://github.com/AIDotNet/AntSK/blob/main/docker-compose.simple.yml)
+
+The compact version is deployed with sqlite-disk by one click
+
+[FullDockerCompose](https://github.com/AIDotNet/AntSK/blob/main/docker-compose.yml)
+
+The full version uses pg+aspire
+
 
 ## 3️⃣Some meanings of configuration file
 ```
@@ -121,11 +127,6 @@ model/xxx.gguf
   },
   "FileDir": {
     "DirectoryPath": "D:\\git\\AntBlazor\\model"
-  },
-  "LLamaSharp": {
-    "RunType": "GPU",
-    "ContextSize": 2048,
-    "GpuLayerCount": 20
   },
   "Login": {
     "User": "admin",
@@ -150,11 +151,8 @@ DBConnection.ConnectionStrings
 //The ConnectionString of Qdrant and AzureAISearch uses Endpoint | APIKey
 KernelMemory.VectorDb
 
-//Local model execution options: GPU and CPU. When using the online API, any option can be used.
-LLamaSharp.RunType
-
 //Local model path, used for quick selection of models under llama, as well as saving downloaded models.
-LLamaSharp.FileDirectory
+FileDir.DirectoryPath
 
 //Default admin account password
 Login
@@ -191,13 +189,6 @@ I'm using CodeFirst mode for the database, so as long as the database connection
 8. Many people ask about the difference between LLamaSharp and llamafactory. In fact, LLamaSharp is a .NET implementation of llama.cpp, but only supports local gguf models, while llamafactory supports a wider variety of models and uses Python implementation. The main difference lies here. Additionally, llamafactory has the ability to fine-tune models, which is an area we will focus on integrating in the future.
 ```
 
-## 🤝 Contributing
-
-[PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)
-
-If you would like to contribute, feel free to create a [Pull Request](https://github.com/AIDotNet/AntSK/pulls), or give us [Bug Report](https://github.com/AIDotNet/AntSK/issues/new).
-
-
 ## 💕 Contributors
 
 This project exists thanks to all the people who contribute.
@@ -207,14 +198,34 @@ This project exists thanks to all the people who contribute.
 </a>
 
 ## 🚨  Use Protocol
-This warehouse follows the [Apache-2.0 License](https://github.com/AIDotNet/AntSK?tab=Apache-2.0-1-ov-file) open source protocol.
-The Apache open source license allows the use of AntSK in commercial environments, provided that the license terms are followed. One of the main terms is to retain the copyright and license statements.
+
+This warehouse follows the [AntSK License](https://github.com/AIDotNet/AntSK?tab=Apache-2.0-1-ov-file) open source protocol.
+
+This project follows the Apache 2.0 agreement, in addition to the following additional terms
+
+1. This project can be used for commercial purposes, but it has the right to prohibit you from using it if it violates the following provisions
+
+2. Without authorization, you are not allowed to modify AntSK's logo and title information
+   
+4. Without authorization, you are not allowed to modify the copyright information at the bottom of the page
+   
+6. If you need authorization, you can contact WeChat: **xuzeyu91**
+
 If you plan to use AntSK in commercial projects, you need to ensure that you follow the following steps:
-1. Copyright statement containing Apache license. [Apache-2.0 License](https://github.com/AIDotNet/AntSK?tab=Apache-2.0-1-ov-file).
+
+1. Copyright statement containing AntSK license. [AntSK License](https://github.com/AIDotNet/AntSK?tab=Apache-2.0-1-ov-file).
+   
 2. If you modify the software source code, you need to clearly indicate these modifications in the source code.
+   
+3. Meet the above requirements  
+
+## 💕 Special thanks
+Helping enterprise AI application development, we recommend [AntBlazor](https://antblazor.com)
 
 ## ☎️Contact Me
 If you have any questions or suggestions, please contact me through my official WeChat account. We also have a discussion group where you can send a message to join, and then I will add you to the group.
+
+Additionally, you can also contact me via email: antskpro@qq.com
 
 ![Official WeChat Account](https://github.com/AIDotNet/AntSK/blob/main/images/gzh.jpg)
 

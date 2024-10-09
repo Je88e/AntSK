@@ -54,10 +54,6 @@
                                             {
                                                 <Tag Color="@PresetColor.Red.ToString()">AzureOpenAI</Tag>
                                             }
-                                            else if (context.AIType == AIType.LLamaSharp)
-                                            {
-                                                <Tag Color="@PresetColor.Yellow.ToString()">LLamaSharp</Tag>
-                                            }
                                             else if (context.AIType == AIType.SparkDesk)
                                             {
                                                 <Tag Color="@PresetColor.Cyan.ToString()">SparkDesk</Tag>
@@ -78,12 +74,8 @@
                                             {
                                                 <Tag Color="@PresetColor.GeekBlue.ToString()">BgeRerank</Tag>
                                             }
-                                            else if (context.AIType == AIType.StableDiffusion)
-                                            {
-                                                <Tag Color="@PresetColor.Magenta.ToString()">StableDiffusion</Tag>
-                                            }
-                                            else if (context.AIType == AIType.Ollama)
-                                            {
+                                            else if (context.AIType == AIType.Ollama || context.AIType == AIType.OllamaEmbedding)
+                                                            {
                                                 <Tag Color="@PresetColor.Pink.ToString()">Ollama</Tag>
                                             }
                                         </p>
@@ -100,10 +92,6 @@
                                             else if (context.AIModelType == AIModelType.Embedding)
                                             {
                                                 <Tag Color="@PresetColor.Green.ToString()">向量模型</Tag>
-                                            }
-                                            else if (context.AIModelType == AIModelType.Image)
-                                            {
-                                                <Tag Color="@PresetColor.Lime.ToString()">图片模型</Tag>
                                             }
                                             else if (context.AIModelType == AIModelType.Rerank)
                                             {
